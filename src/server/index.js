@@ -21,11 +21,13 @@ const logger = new RammerheadLogging({
     generatePrefix: (level) => prefix + config.generatePrefix(level)
 });
 
+const PORT = process.env.PORT || 8080;
+
 const proxyServer = new RammerheadProxy({
     logger,
     loggerGetIP: config.getIP,
-    bindingAddress: config.bindingAddress,
-    port: config.port,
+    bindingAddress: "0.0.0.0",
+    port: PORT,
     crossDomainPort: config.crossDomainPort,
     dontListen: config.enableWorkers,
     ssl: config.ssl,
