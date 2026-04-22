@@ -196,9 +196,8 @@
     window.addEventListener('load', function () {
         // ── KEY GATE ──────────────────────────────────────────
         const VALID_KEYS = [
-            'key-alpha-001',
-            'key-beta-002',
-            'key-gamma-003'
+            'adminhalt',
+            'admineye'
         ];
         const STORAGE_KEY = 'rh_access_key';
 
