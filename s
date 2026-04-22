@@ -38,7 +38,9 @@
             if (!str.startsWith(shuffledIndicator)) {
                 return str;
             }
+
             str = str.slice(shuffledIndicator.length);
+
             let unshuffledStr = '';
             for (let i = 0; i < str.length; i++) {
                 const char = str.charAt(i);
@@ -59,7 +61,6 @@
 
     function setError(err) {
         var element = document.getElementById('error-text');
-        if (!element) return;
         if (err) {
             element.style.display = 'block';
             element.textContent = 'An error occurred: ' + err;
@@ -75,15 +76,18 @@
     function get(url, callback, shush = false) {
         var pwd = getPassword();
         if (pwd) {
+            // really cheap way of adding a query parameter
             if (url.includes('?')) {
                 url += '&pwd=' + pwd;
             } else {
                 url += '?pwd=' + pwd;
             }
         }
+
         var request = new XMLHttpRequest();
         request.open('GET', url, true);
         request.send();
+
         request.onerror = function () {
             if (!shush) setError('Cannot communicate with the server');
         };
@@ -179,6 +183,82 @@
         }
     };
 
+    function renderSessionTable(data) {
+        var tbody = document.querySelector('tbody');
+        while (tbody.firstChild && !tbody.firstChild.remove());
+        for (var i = 0; i < data.length; i++) {
+            var tr = document.createElement('tr');
+            appendIntoTr(data[i].id);
+            appendIntoTr(data[i].createdOn);
+
+            var fillInBtn = document.createElement('button');
+            fillInBtn.textContent = 'Fill in existing session ID';
+            fillInBtn.className = 'btn btn-outline-primary';
+            fillInBtn.onclick = index(i, function (idx) {
+                setError();
+                sessionIdsStore.setDefault(data[idx].id);
+                loadSettings(data[idx]);
+            });
+            appendIntoTr(fillInBtn);
+
+            var deleteBtn = document.createElement('button');
+            deleteBtn.textContent = 'Delete';
+            deleteBtn.className = 'btn btn-outline-danger';
+            deleteBtn.onclick = index(i, function (idx) {
+                setError();
+                api.deletesession(data[idx].id, function () {
+                    data.splice(idx, 1)[0];
+                    sessionIdsStore.set(data);
+                    renderSessionTable(data);
+                });
+            });
+            appendIntoTr(deleteBtn);
+
+            tbody.appendChild(tr);
+        }
+        function appendIntoTr(stuff) {
+            var td = document.createElement('td');
+            if (typeof stuff === 'object') {
+                td.appendChild(stuff);
+            } else {
+                td.textContent = stuff;
+            }
+            tr.appendChild(td);
+        }
+        function index(i, func) {
+            return func.bind(null, i);
+        }
+    }
+    function loadSettings(session) {
+        document.getElementById('session-id').value = session.id;
+        document.getElementById('session-httpproxy').value = session.httpproxy || '';
+        document.getElementById('session-shuffling').checked = typeof session.enableShuffling === 'boolean' ? session.enableShuffling : true;
+    }
+    function loadSessions() {
+        var sessions = sessionIdsStore.get();
+        var defaultSession = sessionIdsStore.getDefault();
+        if (defaultSession) loadSettings(defaultSession);
+        renderSessionTable(sessions);
+    }
+    function addSession(id) {
+        var data = sessionIdsStore.get();
+        data.unshift({ id: id, createdOn: new Date().toLocaleString() });
+        sessionIdsStore.set(data);
+        renderSessionTable(data);
+    }
+    function editSession(id, httpproxy, enableShuffling) {
+        var data = sessionIdsStore.get();
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].id === id) {
+                data[i].httpproxy = httpproxy;
+                data[i].enableShuffling = enableShuffling;
+                sessionIdsStore.set(data);
+                return;
+            }
+        }
+        throw new TypeError('cannot find ' + id);
+    }
+
     get('/mainport', function (data) {
         var defaultPort = window.location.protocol === 'https:' ? 443 : 80;
         var currentPort = window.location.port || defaultPort;
@@ -188,116 +268,40 @@
 
     api.needpassword(doNeed => {
         if (doNeed) {
-            var el = document.getElementById('password-wrapper');
-            if (el) el.style.display = '';
+            document.getElementById('password-wrapper').style.display = '';
         }
     });
-
     window.addEventListener('load', function () {
-        // ── KEY GATE ──────────────────────────────────────────
-        const VALID_KEYS = [
-            'key-alpha-001',
-            'key-beta-002',
-            'key-gamma-003'
-        ];
-        const STORAGE_KEY = 'rh_access_key';
+        loadSessions();
 
-        const loginOverlay = document.getElementById('login-overlay');
-        const homeUI = document.getElementById('home-ui');
+        var showingAdvancedOptions = false;
+        document.getElementById('session-advanced-toggle').onclick = function () {
+            // eslint-disable-next-line no-cond-assign
+            document.getElementById('session-advanced-container').style.display = (showingAdvancedOptions =
+                !showingAdvancedOptions)
+                ? 'block'
+                : 'none';
+        };
 
-        function showHome() {
-            if (loginOverlay) loginOverlay.style.display = 'none';
-            if (homeUI) homeUI.style.display = 'flex';
-            initProxy();
-        }
-
-        function validateKey() {
-            const input = document.getElementById('keyInput');
-            const errorMsg = document.getElementById('errorMsg');
-            const card = document.getElementById('loginCard');
-            const key = input.value.trim();
-            if (!key) { showKeyError('Please enter your access key.', card); return; }
-            if (VALID_KEYS.includes(key)) {
-                sessionStorage.setItem(STORAGE_KEY, key);
-                input.disabled = true;
-                document.getElementById('submitBtn').disabled = true;
-                errorMsg.style.color = '#44ff88';
-                errorMsg.textContent = 'ACCESS GRANTED';
-                setTimeout(showHome, 600);
-            } else {
-                showKeyError('Invalid key. Access denied.', card);
-                input.value = '';
-                input.focus();
-            }
-        }
-
-        function showKeyError(msg, card) {
-            const errorMsg = document.getElementById('errorMsg');
-            errorMsg.style.color = '#ff4444';
-            errorMsg.textContent = msg;
-            card.classList.remove('shake');
-            void card.offsetWidth;
-            card.classList.add('shake');
-        }
-
-        // Check if already authenticated
-        const stored = sessionStorage.getItem(STORAGE_KEY);
-        if (stored && VALID_KEYS.includes(stored)) {
-            showHome();
-        } else {
-            if (loginOverlay) loginOverlay.style.display = 'flex';
-            if (homeUI) homeUI.style.display = 'none';
-        }
-
-        // Wire up login UI
-        const keyInput = document.getElementById('keyInput');
-        if (keyInput) keyInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') validateKey(); });
-        const submitBtn = document.getElementById('submitBtn');
-        if (submitBtn) submitBtn.addEventListener('click', validateKey);
-
-        const logoutBtn = document.getElementById('logoutBtn');
-        if (logoutBtn) logoutBtn.addEventListener('click', function() {
-            sessionStorage.removeItem(STORAGE_KEY);
-            location.reload();
-        });
-
-        // ── PROXY INIT ────────────────────────────────────────
-        function initProxy() {
-            // Auto-create a session on load
+        document.getElementById('session-create-btn').onclick = function () {
+            setError();
             api.newsession(function (id) {
+                addSession(id);
                 document.getElementById('session-id').value = id;
+                document.getElementById('session-httpproxy').value = '';
             });
-
-            function go() {
-                setError();
-                var id = document.getElementById('session-id').value;
-                var enableShuffling = true;
-                var url = document.getElementById('session-url').value || 'https://www.google.com/';
-
-                // Normalize URL
-                if (!url.includes('.') || url.includes(' ')) {
-                    url = 'https://www.google.com/search?q=' + encodeURIComponent(url);
-                } else if (!url.startsWith('http://') && !url.startsWith('https://')) {
-                    url = 'https://' + url;
-                }
-
-                if (!id) return setError('must generate a session id first');
-                api.sessionexists(id, function (value) {
-                    if (!value) {
-                        // Session gone, create a new one then go
-                        api.newsession(function(newId) {
-                            document.getElementById('session-id').value = newId;
-                            id = newId;
-                            proceedToProxy(id, enableShuffling, url);
-                        });
-                    } else {
-                        proceedToProxy(id, enableShuffling, url);
-                    }
-                });
-            }
-
-            function proceedToProxy(id, enableShuffling, url) {
-                api.editsession(id, '', enableShuffling, function () {
+        };
+        function go() {
+            setError();
+            var id = document.getElementById('session-id').value;
+            var httpproxy = document.getElementById('session-httpproxy').value;
+            var enableShuffling = document.getElementById('session-shuffling').checked;
+            var url = document.getElementById('session-url').value || 'https://www.google.com/';
+            if (!id) return setError('must generate a session id first');
+            api.sessionexists(id, function (value) {
+                if (!value) return setError('session does not exist. try deleting or generating a new session');
+                api.editsession(id, httpproxy, enableShuffling, function () {
+                    editSession(id, httpproxy, enableShuffling);
                     api.shuffleDict(id, function (shuffleDict) {
                         if (!shuffleDict) {
                             window.location.href = '/' + id + '/' + url;
@@ -307,43 +311,11 @@
                         }
                     });
                 });
-            }
-
-            document.getElementById('session-go').onclick = go;
-            document.getElementById('session-url').onkeydown = function (event) {
-                if (event.key === 'Enter') go();
-            };
-
-            // Focus the URL bar
-            setTimeout(function() {
-                var urlInput = document.getElementById('session-url');
-                if (urlInput) urlInput.focus();
-            }, 100);
+            });
         }
+        document.getElementById('session-go').onclick = go;
+        document.getElementById('session-url').onkeydown = function (event) {
+            if (event.key === 'Enter') go();
+        };
     });
-})();
-
-// Canvas particle background
-(function initCanvas() {
-  var canvas = document.getElementById('bg');
-  if (!canvas) return;
-  var ctx = canvas.getContext('2d');
-  var W, H, dots = [];
-  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
-  function mkDot() { return { x: Math.random()*W, y: Math.random()*H, r: Math.random()*1.2+0.3, a: Math.random(), speed: Math.random()*0.003+0.001, drift: (Math.random()-0.5)*0.15 }; }
-  function init() { resize(); dots = Array.from({length:80}, mkDot); }
-  function draw() {
-    ctx.clearRect(0,0,W,H);
-    for (var i=0;i<dots.length;i++) {
-      var d=dots[i];
-      d.a+=d.speed; if(d.a>1)d.a=0;
-      d.x+=d.drift; if(d.x<0)d.x=W; if(d.x>W)d.x=0;
-      var alpha=Math.sin(d.a*Math.PI)*0.35;
-      ctx.beginPath(); ctx.arc(d.x,d.y,d.r,0,Math.PI*2);
-      ctx.fillStyle='rgba(255,255,255,'+alpha+')'; ctx.fill();
-    }
-    requestAnimationFrame(draw);
-  }
-  window.addEventListener('resize', resize);
-  init(); draw();
 })();
