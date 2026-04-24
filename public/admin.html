@@ -1,0 +1,693 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Admin Panel — Darknd</title>
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>" />
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+        <style>
+            *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+            body { min-height: 100vh; background: #080808; font-family: 'Syne', system-ui, sans-serif; color: #e0e0e0; }
+
+            header {
+                display: flex; align-items: center; justify-content: space-between;
+                padding: 1.2rem 2rem;
+                border-bottom: 1px solid rgba(255,255,255,0.06);
+                position: sticky; top: 0; background: #080808; z-index: 10;
+            }
+
+            .header-left { display: flex; align-items: center; gap: 1rem; }
+
+            .home-btn {
+                display: flex; align-items: center; justify-content: center;
+                color: #444; text-decoration: none; padding: 6px;
+                border: 1px solid rgba(255,255,255,0.08); border-radius: 6px;
+                transition: all 0.2s ease; margin-right: 0.5rem;
+            }
+            .home-btn:hover { color: #fff; background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.2); }
+
+            .brand-mark { width: 32px; height: 32px; position: relative; flex-shrink: 0; }
+            .brand-mark .b1, .brand-mark .b2 { position: absolute; border-radius: 50%; width: 16px; height: 16px; }
+            .brand-mark .b1 { top: 0; left: 0; background: #fff; }
+            .brand-mark .b2 { bottom: 0; right: 0; background: rgba(255,255,255,0.25); }
+
+            .header-title { font-size: 1rem; font-weight: 700; color: #fff; }
+            .header-sub { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.15em; color: #444; }
+            .header-right { display: flex; align-items: center; gap: 1rem; }
+
+            .stat-pill {
+                font-family: 'DM Mono', monospace; font-size: 0.68rem; color: #555;
+                background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+                border-radius: 20px; padding: 0.3rem 0.8rem;
+            }
+            .stat-pill span { color: #e0e0e0; }
+
+            .logout-btn {
+                font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.12em;
+                color: #444; background: none; border: 1px solid rgba(255,255,255,0.08);
+                border-radius: 6px; padding: 0.35rem 0.75rem; cursor: pointer; transition: color 0.2s, border-color 0.2s;
+            }
+            .logout-btn:hover { color: #aaa; border-color: rgba(255,255,255,0.2); }
+
+            main {
+                max-width: 1000px; margin: 0 auto; padding: 2rem;
+                display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
+            }
+            @media (max-width: 700px) { main { grid-template-columns: 1fr; } }
+
+            .panel {
+                background: rgba(14,14,14,0.9); border: 1px solid rgba(255,255,255,0.07);
+                border-radius: 14px; overflow: hidden;
+            }
+            .panel.full-width { grid-column: 1 / -1; }
+
+            .panel-header {
+                display: flex; align-items: center; justify-content: space-between;
+                padding: 1rem 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.06);
+            }
+            .panel-title { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.18em; color: #555; }
+            .panel-action {
+                font-family: 'DM Mono', monospace; font-size: 0.65rem; color: #e05555;
+                background: none; border: 1px solid rgba(224,85,85,0.3); border-radius: 5px;
+                padding: 0.25rem 0.6rem; cursor: pointer; transition: background 0.2s;
+            }
+            .panel-action:hover { background: rgba(224,85,85,0.1); }
+
+            .panel-body { padding: 1rem 1.2rem; display: flex; flex-direction: column; gap: 0.6rem; }
+
+            .session-item, .password-item, .ann-item-row {
+                display: flex; align-items: center; justify-content: space-between;
+                background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);
+                border-radius: 8px; padding: 0.6rem 0.9rem; gap: 0.5rem;
+            }
+
+            .session-info { display: flex; flex-direction: column; gap: 0.2rem; }
+            .session-token { font-family: 'DM Mono', monospace; font-size: 0.78rem; color: #aaa; }
+            .session-age { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: #444; }
+
+            .revoke-btn, .pw-btn.del {
+                font-family: 'DM Mono', monospace; font-size: 0.62rem; color: #e05555;
+                background: none; border: 1px solid rgba(224,85,85,0.25); border-radius: 5px;
+                padding: 0.2rem 0.5rem; cursor: pointer; white-space: nowrap;
+                transition: background 0.2s; flex-shrink: 0;
+            }
+            .revoke-btn:hover, .pw-btn.del:hover { background: rgba(224,85,85,0.1); }
+
+            .pw-text { font-family: 'DM Mono', monospace; font-size: 0.82rem; color: #ccc; flex: 1; cursor: pointer; user-select: none; }
+            .pw-text.revealed { color: #fff; }
+            .pw-actions { display: flex; gap: 0.4rem; flex-shrink: 0; align-items: center; }
+
+            .pw-btn {
+                font-family: 'DM Mono', monospace; font-size: 0.6rem; background: none;
+                border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; padding: 0.2rem 0.5rem;
+                cursor: pointer; color: #666; transition: color 0.2s;
+            }
+            .pw-btn:hover { color: #ccc; border-color: rgba(255,255,255,0.25); }
+
+            /* Gear button */
+            .gear-btn {
+                font-size: 0.85rem !important; padding: 0.15rem 0.4rem !important;
+                color: #555 !important; line-height: 1;
+            }
+            .gear-btn:hover { color: #aaa !important; transform: rotate(30deg); transition: transform 0.2s, color 0.2s; }
+
+            /* Expiry badge */
+            .expiry-badge {
+                font-family: 'DM Mono', monospace; font-size: 0.6rem;
+                color: #555; background: rgba(255,255,255,0.04);
+                border: 1px solid rgba(255,255,255,0.06); border-radius: 4px;
+                padding: 0.15rem 0.4rem; white-space: nowrap; flex-shrink: 0;
+                letter-spacing: 0.04em;
+            }
+            .expiry-badge.expiring-soon { color: #e09040; border-color: rgba(224,144,64,0.3); }
+            .expiry-badge.expired-badge { color: #e05555; border-color: rgba(224,85,85,0.3); }
+            .expiry-badge.perm { color: #4caf87; border-color: rgba(76,175,135,0.3); }
+
+            .add-form { display: flex; gap: 0.5rem; margin-top: 0.4rem; }
+            .add-input {
+                flex: 1; padding: 0.65rem 0.9rem; background: #111;
+                border: 1px solid rgba(255,255,255,0.08); border-radius: 8px;
+                color: #e0e0e0; font-family: 'DM Mono', monospace; font-size: 0.85rem; outline: none;
+            }
+            .add-btn {
+                padding: 0 1rem; background: #fff; color: #000; border: none;
+                border-radius: 8px; cursor: pointer; font-family: 'DM Mono', monospace; font-size: 0.72rem;
+            }
+
+            .toast {
+                position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(10px);
+                background: rgba(30,30,30,0.95); border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 8px; padding: 0.6rem 1.2rem;
+                font-family: 'DM Mono', monospace; font-size: 0.78rem; color: #ccc;
+                opacity: 0; transition: all 0.2s; pointer-events: none; z-index: 200;
+            }
+            .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+            .empty-msg { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: #333; text-align: center; padding: 1rem 0; }
+            .rename-input {
+                flex: 1; background: #111; border: 1px solid rgba(255,255,255,0.15);
+                border-radius: 5px; color: #fff; font-family: 'DM Mono', monospace;
+                font-size: 0.82rem; padding: 0.15rem 0.4rem; outline: none;
+            }
+
+            /* Announcement row */
+            .ann-text { font-family: 'DM Mono', monospace; font-size: 0.78rem; color: #aaa; flex: 1; line-height: 1.4; }
+
+            /* Chat message row */
+            .chat-msg-row {
+                display: flex; align-items: flex-start; justify-content: space-between;
+                background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);
+                border-radius: 8px; padding: 0.5rem 0.9rem; gap: 0.5rem;
+            }
+            .chat-msg-info { display: flex; flex-direction: column; gap: 0.15rem; flex: 1; }
+            .chat-msg-sender { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: #7ab4ff; }
+            .chat-msg-sender.admin-sender { color: #e05555; }
+            .chat-msg-body { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: #888; line-height: 1.4; }
+            .chat-msg-time { font-family: 'DM Mono', monospace; font-size: 0.6rem; color: #333; }
+
+            /* ── Key Config Modal ─────────────────────────────── */
+            .modal-overlay {
+                position: fixed; inset: 0; background: rgba(0,0,0,0.65);
+                display: flex; align-items: center; justify-content: center;
+                z-index: 150; backdrop-filter: blur(4px);
+            }
+            .modal-box {
+                background: #0e0e0e; border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 14px; padding: 1.6rem 1.8rem;
+                width: 100%; max-width: 340px; display: flex; flex-direction: column; gap: 1.2rem;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            }
+            .modal-title {
+                font-family: 'DM Mono', monospace; font-size: 0.7rem;
+                letter-spacing: 0.2em; color: #555;
+            }
+            .modal-key-preview {
+                font-family: 'DM Mono', monospace; font-size: 0.82rem;
+                color: #888; background: rgba(255,255,255,0.03);
+                border: 1px solid rgba(255,255,255,0.06); border-radius: 7px;
+                padding: 0.5rem 0.8rem;
+            }
+            .modal-section-label {
+                font-family: 'DM Mono', monospace; font-size: 0.62rem;
+                letter-spacing: 0.12em; color: #444; margin-bottom: 0.5rem;
+            }
+            .modal-duration-row { display: flex; gap: 0.5rem; align-items: center; }
+            .modal-duration-num {
+                width: 70px; padding: 0.5rem 0.6rem; background: #111;
+                border: 1px solid rgba(255,255,255,0.1); border-radius: 7px;
+                color: #e0e0e0; font-family: 'DM Mono', monospace; font-size: 0.85rem; outline: none;
+            }
+            .modal-duration-unit {
+                flex: 1; padding: 0.5rem 0.6rem; background: #111;
+                border: 1px solid rgba(255,255,255,0.1); border-radius: 7px;
+                color: #e0e0e0; font-family: 'DM Mono', monospace; font-size: 0.82rem; outline: none;
+                cursor: pointer;
+            }
+            .modal-perm-toggle {
+                font-family: 'DM Mono', monospace; font-size: 0.65rem;
+                color: #555; background: none; border: 1px solid rgba(255,255,255,0.08);
+                border-radius: 6px; padding: 0.3rem 0.65rem; cursor: pointer; transition: all 0.2s;
+                white-space: nowrap;
+            }
+            .modal-perm-toggle.active {
+                color: #4caf87; border-color: rgba(76,175,135,0.4);
+                background: rgba(76,175,135,0.08);
+            }
+            .modal-actions { display: flex; gap: 0.6rem; }
+            .modal-save {
+                flex: 1; padding: 0.6rem; background: #fff; color: #000; border: none;
+                border-radius: 8px; cursor: pointer; font-family: 'DM Mono', monospace;
+                font-size: 0.72rem; letter-spacing: 0.08em; transition: background 0.15s;
+            }
+            .modal-save:hover { background: #e2e2e2; }
+            .modal-cancel {
+                flex: 1; padding: 0.6rem; background: none; color: #555;
+                border: 1px solid rgba(255,255,255,0.08); border-radius: 8px;
+                cursor: pointer; font-family: 'DM Mono', monospace; font-size: 0.72rem;
+                letter-spacing: 0.08em; transition: color 0.2s, border-color 0.2s;
+            }
+            .modal-cancel:hover { color: #aaa; border-color: rgba(255,255,255,0.2); }
+        </style>
+    </head>
+    <body>
+        <header>
+            <div class="header-left">
+                <a href="/" class="home-btn" title="Back to Home">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                </a>
+                <div class="brand-mark"><span class="b1"></span><span class="b2"></span></div>
+                <div>
+                    <div class="header-title">Admin Panel</div>
+                    <div class="header-sub">DARKND</div>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="stat-pill">Sessions: <span id="stat-sessions">—</span></div>
+                <div class="stat-pill">Total logins: <span id="stat-logins">—</span></div>
+                <form method="POST" action="/admin/logout" style="margin:0">
+                    <button type="submit" class="logout-btn">LOGOUT</button>
+                </form>
+            </div>
+        </header>
+
+        <main>
+            <!-- Sessions Panel -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">ACTIVE SESSIONS</span>
+                    <button class="panel-action" onclick="revokeAll()">REVOKE ALL</button>
+                </div>
+                <div class="panel-body" id="sessions-list">
+                    <div class="empty-msg">Loading...</div>
+                </div>
+            </div>
+
+            <!-- Access Keys Panel -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">ACCESS KEYS</span>
+                </div>
+                <div class="panel-body" id="passwords-list">
+                    <div class="empty-msg">Loading...</div>
+                </div>
+                <div class="panel-body" style="border-top: 1px solid rgba(255,255,255,0.06);">
+                    <div class="add-form">
+                        <input class="add-input" id="new-password" type="text" placeholder="New access key..." />
+                        <button class="add-btn" onclick="addPassword()">ADD KEY</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Announcements Panel (full width) -->
+            <div class="panel full-width">
+                <div class="panel-header">
+                    <span class="panel-title">ANNOUNCEMENTS</span>
+                </div>
+                <div class="panel-body" id="announcements-list">
+                    <div class="empty-msg">Loading...</div>
+                </div>
+                <div class="panel-body" style="border-top: 1px solid rgba(255,255,255,0.06);">
+                    <div class="add-form">
+                        <input class="add-input" id="new-announcement" type="text" placeholder="New announcement..." />
+                        <button class="add-btn" onclick="addAnnouncement()">POST</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Messages Panel (full width) -->
+            <div class="panel full-width">
+                <div class="panel-header">
+                    <span class="panel-title">CHAT MESSAGES</span>
+                    <button class="panel-action" onclick="clearChat()">CLEAR ALL</button>
+                </div>
+                <div class="panel-body" id="chat-admin-list">
+                    <div class="empty-msg">Loading...</div>
+                </div>
+            </div>
+        </main>
+
+        <div class="toast" id="toast"></div>
+
+        <!-- Key Config Modal -->
+        <div class="modal-overlay" id="key-config-modal" style="display:none" onclick="handleModalOverlayClick(event)">
+            <div class="modal-box">
+                <div class="modal-title">KEY CONFIGURATION</div>
+                <div class="modal-key-preview" id="modal-key-preview">••••••••</div>
+                <div>
+                    <div class="modal-section-label">DURATION</div>
+                    <div class="modal-duration-row">
+                        <input class="modal-duration-num" id="modal-duration-num" type="number" min="1" value="1" />
+                        <select class="modal-duration-unit" id="modal-duration-unit">
+                            <option value="minutes">Minutes</option>
+                            <option value="hours" selected>Hours</option>
+                            <option value="days">Days</option>
+                            <option value="months">Months</option>
+                            <option value="years">Years</option>
+                        </select>
+                        <button class="modal-perm-toggle" id="modal-perm-btn" onclick="togglePermanent()">∞ PERM</button>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="modal-save" onclick="saveKeyConfig()">SAVE</button>
+                    <button class="modal-cancel" onclick="closeKeyConfig()">CANCEL</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            let state = { sessions: [], passwords: [] };
+            let configTargetKey = null;
+            let isPermanent = true;
+            let countdownInterval = null;
+
+            // ── State Loading ────────────────────────────────────────────────
+            async function loadState() {
+                try {
+                    const res = await fetch("/admin/api/state");
+                    state = await res.json();
+                    renderSessions();
+                    renderPasswords();
+                    document.getElementById("stat-sessions").textContent = state.activeSessions;
+                    document.getElementById("stat-logins").textContent = state.totalLogins;
+                } catch (e) { console.error("Failed to load state", e); }
+            }
+
+            // ── Sessions ─────────────────────────────────────────────────────
+            function timeAgo(minutes) {
+                if (minutes < 1) return "just now";
+                if (minutes < 60) return `${minutes}m ago`;
+                const h = Math.floor(minutes / 60);
+                if (h < 24) return `${h}h ago`;
+                return `${Math.floor(h / 24)}d ago`;
+            }
+
+            function renderSessions() {
+                const list = document.getElementById("sessions-list");
+                if (!state.sessions || state.sessions.length === 0) {
+                    list.innerHTML = '<div class="empty-msg">No active sessions</div>'; return;
+                }
+                list.innerHTML = state.sessions.map(s => `
+                    <div class="session-item">
+                        <div class="session-info">
+                            <div class="session-token">${s.token}</div>
+                            <div class="session-age">logged in ${timeAgo(s.age)}</div>
+                        </div>
+                        <button class="revoke-btn" onclick="revokeSession('${s.fullToken}')">REVOKE</button>
+                    </div>
+                `).join("");
+            }
+
+            // ── Expiry Formatting ────────────────────────────────────────────
+            function formatExpiry(expiresAt) {
+                if (expiresAt === null) return { label: "∞ PERM", cls: "perm" };
+                const remaining = expiresAt - Date.now();
+                if (remaining <= 0) return { label: "EXPIRED", cls: "expired-badge" };
+                const totalSec = Math.floor(remaining / 1000);
+                const totalMin = Math.floor(totalSec / 60);
+                const totalHr  = Math.floor(totalMin / 60);
+                const totalDay = Math.floor(totalHr / 24);
+                const totalYr  = Math.floor(totalDay / 365);
+                let label;
+                if (totalYr > 0)      label = `${totalYr}y ${totalDay % 365}d`;
+                else if (totalDay > 0) label = `${totalDay}d ${totalHr % 24}h`;
+                else if (totalHr > 0)  label = `${totalHr}h ${totalMin % 60}m`;
+                else                   label = `${totalMin}m ${totalSec % 60}s`;
+                const cls = remaining < 3600000 ? "expiring-soon" : "";
+                return { label, cls };
+            }
+
+            // ── Passwords / Keys ─────────────────────────────────────────────
+            function renderPasswords() {
+                const list = document.getElementById("passwords-list");
+                if (!state.passwords || state.passwords.length === 0) {
+                    list.innerHTML = '<div class="empty-msg">No access keys</div>'; return;
+                }
+                list.innerHTML = state.passwords.map((pw, i) => {
+                    const { label, cls } = formatExpiry(pw.expiresAt);
+                    const safeKey = encodeURIComponent(pw.key);
+                    return `
+                        <div class="password-item" id="pw-item-${i}">
+                            <div class="pw-text" title="Click to reveal" onclick="toggleReveal(this, '${pw.key.replace(/'/g, "\\'")}')">••••••••</div>
+                            <span class="expiry-badge ${cls}" id="expiry-badge-${i}" data-expires="${pw.expiresAt === null ? 'null' : pw.expiresAt}">${label}</span>
+                            <div class="pw-actions">
+                                <button class="pw-btn gear-btn" title="Key Configuration" onclick="openKeyConfig(${i}, decodeURIComponent('${safeKey}'), ${pw.expiresAt === null ? 'null' : pw.expiresAt})">⚙</button>
+                                <button class="pw-btn" onclick="startRename(${i}, decodeURIComponent('${safeKey}'))">RENAME</button>
+                                <button class="pw-btn del" onclick="deletePassword(decodeURIComponent('${safeKey}'))">DELETE</button>
+                            </div>
+                        </div>
+                    `;
+                }).join("");
+
+                // Start live countdown
+                startCountdowns();
+            }
+
+            function startCountdowns() {
+                if (countdownInterval) clearInterval(countdownInterval);
+                countdownInterval = setInterval(() => {
+                    document.querySelectorAll(".expiry-badge[data-expires]").forEach(badge => {
+                        const raw = badge.dataset.expires;
+                        if (raw === "null") return;
+                        const expiresAt = Number(raw);
+                        const { label, cls } = formatExpiry(expiresAt);
+                        badge.textContent = label;
+                        badge.className = `expiry-badge ${cls}`;
+                    });
+                }, 1000);
+            }
+
+            function toggleReveal(el, pw) {
+                if (el.classList.contains("revealed")) {
+                    el.textContent = "••••••••"; el.classList.remove("revealed");
+                } else { el.textContent = pw; el.classList.add("revealed"); }
+            }
+
+            function startRename(i, oldPw) {
+                const item = document.getElementById(`pw-item-${i}`);
+                item.innerHTML = `
+                    <input class="rename-input" id="rename-input-${i}" type="text" value="${oldPw.replace(/"/g, '&quot;')}" />
+                    <div class="pw-actions">
+                        <button class="pw-btn" onclick="confirmRename(${i}, decodeURIComponent('${encodeURIComponent(oldPw)}'))">SAVE</button>
+                        <button class="pw-btn" onclick="loadState()">CANCEL</button>
+                    </div>
+                `;
+                document.getElementById(`rename-input-${i}`).focus();
+            }
+
+            async function confirmRename(i, oldPw) {
+                const newPw = document.getElementById(`rename-input-${i}`).value.trim();
+                if (!newPw) return toast("Key cannot be empty");
+                const res = await api("/admin/api/passwords/rename", { oldPassword: oldPw, newPassword: newPw });
+                if (res.ok) { await loadState(); toast("Key renamed"); }
+                else toast(res.error);
+            }
+
+            async function addPassword() {
+                const input = document.getElementById("new-password");
+                const pw = input.value.trim();
+                if (!pw) return toast("Key cannot be empty");
+                const res = await api("/admin/api/passwords/add", { password: pw });
+                if (res.ok) { await loadState(); input.value = ""; toast("Key added"); }
+                else toast(res.error);
+            }
+
+            async function deletePassword(pw) {
+                if (!confirm(`Delete this key?`)) return;
+                const res = await api("/admin/api/passwords/delete", { password: pw });
+                if (res.ok) { await loadState(); toast("Key deleted"); }
+                else toast(res.error);
+            }
+
+            // ── Key Config Modal ─────────────────────────────────────────────
+            function openKeyConfig(i, key, expiresAt) {
+                configTargetKey = key;
+                document.getElementById("modal-key-preview").textContent = key.slice(0, 3) + "•".repeat(Math.max(0, key.length - 3));
+
+                if (expiresAt === null) {
+                    isPermanent = true;
+                    document.getElementById("modal-perm-btn").classList.add("active");
+                    document.getElementById("modal-duration-num").disabled = true;
+                    document.getElementById("modal-duration-unit").disabled = true;
+                } else {
+                    isPermanent = false;
+                    document.getElementById("modal-perm-btn").classList.remove("active");
+                    document.getElementById("modal-duration-num").disabled = false;
+                    document.getElementById("modal-duration-unit").disabled = false;
+                    // Pre-fill with remaining time
+                    const remaining = expiresAt - Date.now();
+                    if (remaining > 0) {
+                        const hrs = Math.floor(remaining / 3600000);
+                        document.getElementById("modal-duration-num").value = Math.max(1, hrs);
+                        document.getElementById("modal-duration-unit").value = "hours";
+                    }
+                }
+
+                document.getElementById("key-config-modal").style.display = "flex";
+            }
+
+            function closeKeyConfig() {
+                document.getElementById("key-config-modal").style.display = "none";
+                configTargetKey = null;
+            }
+
+            function handleModalOverlayClick(e) {
+                if (e.target === document.getElementById("key-config-modal")) closeKeyConfig();
+            }
+
+            function togglePermanent() {
+                isPermanent = !isPermanent;
+                const btn = document.getElementById("modal-perm-btn");
+                const numInput = document.getElementById("modal-duration-num");
+                const unitSelect = document.getElementById("modal-duration-unit");
+                if (isPermanent) {
+                    btn.classList.add("active");
+                    numInput.disabled = true; unitSelect.disabled = true;
+                } else {
+                    btn.classList.remove("active");
+                    numInput.disabled = false; unitSelect.disabled = false;
+                }
+            }
+
+            function durationToMs(amount, unit) {
+                const n = Number(amount);
+                switch (unit) {
+                    case "minutes": return n * 60 * 1000;
+                    case "hours":   return n * 3600 * 1000;
+                    case "days":    return n * 86400 * 1000;
+                    case "months":  return n * 30 * 86400 * 1000;
+                    case "years":   return n * 365 * 86400 * 1000;
+                    default:        return n * 3600 * 1000;
+                }
+            }
+
+            async function saveKeyConfig() {
+                if (!configTargetKey) return;
+                let expiresAt = null;
+                if (!isPermanent) {
+                    const amount = document.getElementById("modal-duration-num").value;
+                    const unit   = document.getElementById("modal-duration-unit").value;
+                    expiresAt = Date.now() + durationToMs(amount, unit);
+                }
+                const res = await api("/admin/api/keys/set-duration", { key: configTargetKey, expiresAt });
+                if (res.ok) {
+                    closeKeyConfig();
+                    await loadState();
+                    toast(expiresAt === null ? "Key set to permanent" : "Key duration saved");
+                } else toast(res.error || "Failed to save");
+            }
+
+            // ── Announcements ────────────────────────────────────────────────
+            async function loadAnnouncements() {
+                try {
+                    const res = await fetch("/api/announcements");
+                    const data = await res.json();
+                    renderAnnouncements(data.announcements || []);
+                } catch (e) { /* silent */ }
+            }
+
+            function renderAnnouncements(list) {
+                const el = document.getElementById("announcements-list");
+                if (list.length === 0) {
+                    el.innerHTML = '<div class="empty-msg">No announcements posted</div>'; return;
+                }
+                el.innerHTML = list.map((a, i) => `
+                    <div class="ann-item-row">
+                        <span class="ann-text">${a}</span>
+                        <button class="revoke-btn" onclick="deleteAnnouncement(${i})">DELETE</button>
+                    </div>
+                `).join("");
+            }
+
+            async function addAnnouncement() {
+                const input = document.getElementById("new-announcement");
+                const text = input.value.trim();
+                if (!text) return toast("Announcement cannot be empty");
+                const res = await api("/admin/api/announcements/add", { text });
+                if (res.ok) { renderAnnouncements(res.announcements); input.value = ""; toast("Announcement posted"); }
+                else toast(res.error);
+            }
+
+            async function deleteAnnouncement(index) {
+                const res = await api("/admin/api/announcements/delete", { index });
+                if (res.ok) { renderAnnouncements(res.announcements); toast("Announcement removed"); }
+                else toast(res.error);
+            }
+
+            // ── Sessions Actions ─────────────────────────────────────────────
+            async function revokeSession(token) {
+                const res = await api("/admin/api/sessions/revoke", { token });
+                if (res.ok) { await loadState(); toast("Session revoked"); }
+            }
+
+            async function revokeAll() {
+                if (!confirm("Revoke all active sessions?")) return;
+                const res = await api("/admin/api/sessions/revokeAll", {});
+                if (res.ok) { await loadState(); toast("All sessions revoked"); }
+            }
+
+            // ── Helpers ──────────────────────────────────────────────────────
+            async function api(url, body) {
+                const res = await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(body),
+                });
+                return res.json();
+            }
+
+            function toast(msg) {
+                const el = document.getElementById("toast");
+                el.textContent = msg; el.classList.add("show");
+                setTimeout(() => el.classList.remove("show"), 2500);
+            }
+
+            // ── Chat Admin ───────────────────────────────────────────────────
+            async function loadAdminChat() {
+                try {
+                    const res = await fetch("/api/chat");
+                    const data = await res.json();
+                    renderAdminChat(data.messages || []);
+                } catch (e) { /* silent */ }
+            }
+
+            function renderAdminChat(msgs) {
+                const el = document.getElementById("chat-admin-list");
+                if (!msgs || msgs.length === 0) {
+                    el.innerHTML = '<div class="empty-msg">No chat messages</div>'; return;
+                }
+                el.innerHTML = msgs.map((m, i) => {
+                    const senderClass = m.isAdmin ? "chat-msg-sender admin-sender" : "chat-msg-sender";
+                    const time = new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    return `
+                        <div class="chat-msg-row">
+                            <div class="chat-msg-info">
+                                <span class="${senderClass}">${m.username}</span>
+                                <span class="chat-msg-body">${m.text}</span>
+                                <span class="chat-msg-time">${time}</span>
+                            </div>
+                            <button class="revoke-btn" onclick="deleteChatMsg(${i})">DELETE</button>
+                        </div>
+                    `;
+                }).join("");
+            }
+
+            async function deleteChatMsg(index) {
+                const res = await api("/admin/api/chat/delete", { index });
+                if (res.ok) { renderAdminChat(res.messages); toast("Message deleted"); }
+                else toast(res.error || "Failed to delete");
+            }
+
+            async function clearChat() {
+                if (!confirm("Clear all chat messages?")) return;
+                const res = await api("/admin/api/chat/clear", {});
+                if (res.ok) { renderAdminChat([]); toast("Chat cleared"); }
+                else toast("Failed to clear chat");
+            }
+
+            // ── Init ─────────────────────────────────────────────────────────
+            loadState();
+            loadAnnouncements();
+            loadAdminChat();
+            setInterval(loadState, 15000);
+            setInterval(loadAdminChat, 5000);
+
+            document.addEventListener("DOMContentLoaded", () => {
+                document.getElementById("new-password")?.addEventListener("keydown", e => {
+                    if (e.key === "Enter") addPassword();
+                });
+                document.getElementById("new-announcement")?.addEventListener("keydown", e => {
+                    if (e.key === "Enter") addAnnouncement();
+                });
+                document.getElementById("modal-duration-num")?.addEventListener("keydown", e => {
+                    if (e.key === "Enter") saveKeyConfig();
+                });
+            });
+        </script>
+    </body>
+</html>
