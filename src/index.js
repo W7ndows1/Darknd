@@ -505,34 +505,6 @@ fastify.post("/api/chat/send", async (req, reply) => {
 	return reply.send({ ok: true });
 });
 
-// ── Public API: Chat Reactions ────────────────────────────────────────────────
-fastify.post("/api/chat/react", async (req, reply) => {
-	const { index, emoji, action } = req.body ?? {};
-	if (index === undefined || !emoji)
-		return reply.code(400).send({ error: "Invalid request" });
-
-	// Only allow safe emoji (basic set)
-	const allowed = ["👍","❤️","😂","😮","🔥","💀"];
-	if (!allowed.includes(emoji))
-		return reply.code(400).send({ error: "Invalid emoji" });
-
-	const msgs = loadChat();
-	if (index < 0 || index >= msgs.length)
-		return reply.code(400).send({ error: "Invalid index" });
-
-	if (!msgs[index].reactions) msgs[index].reactions = {};
-
-	if (action === "remove") {
-		msgs[index].reactions[emoji] = Math.max(0, (msgs[index].reactions[emoji] || 0) - 1);
-		if (msgs[index].reactions[emoji] === 0) delete msgs[index].reactions[emoji];
-	} else {
-		msgs[index].reactions[emoji] = (msgs[index].reactions[emoji] || 0) + 1;
-	}
-
-	saveChat(msgs);
-	return reply.send({ ok: true, reactions: msgs[index].reactions });
-});
-
 // ── Public API: Search Suggestions ───────────────────────────────────────────
 fastify.get("/api/suggestions", async (req, reply) => {
 	const q = req.query?.q ?? "";

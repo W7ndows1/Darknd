@@ -531,7 +531,7 @@
         setInterval(loadAnnouncements, 20000);
 
         // ════════════════════════════════════════════════════════
-        // CHAT DRAWER
+        // CHAT DRAWER (CLEANED)
         // ════════════════════════════════════════════════════════
         let drawerOpen = false;
         let lastMessageCount = 0;
@@ -590,74 +590,12 @@
             if (e.key === "Enter") sendMessage();
         });
 
-        // Reactions — track what the user has reacted to via localStorage
-        function getMyReactions() {
-            try { return JSON.parse(localStorage.getItem("darknd_reactions") || "{}"); }
-            catch { return {}; }
-        }
-
-        function saveMyReactions(r) {
-            localStorage.setItem("darknd_reactions", JSON.stringify(r));
-        }
-
-        const REACTION_EMOJIS = ["👍","❤️","😂","😮","🔥","💀"];
-        // Active emoji picker state
-        let pickerMsgIndex = null;
-        let pickerEl = null;
-
-        function closePicker() {
-            if (pickerEl) { pickerEl.classList.remove("open"); }
-            pickerMsgIndex = null;
-        }
-
-        function openEmojiPicker(msgIndex, anchorEl) {
-            closePicker();
-            // Build/reuse a picker near the anchor
-            let picker = document.getElementById(`picker-${msgIndex}`);
-            if (!picker) return;
-            picker.classList.add("open");
-            pickerEl = picker;
-            pickerMsgIndex = msgIndex;
-            // Close if clicking outside
-            setTimeout(() => {
-                document.addEventListener("click", closePicker, { once: true });
-            }, 10);
-        }
-
-        async function reactToMessage(msgIndex, emoji) {
-            const myReactions = getMyReactions();
-            const key = `${msgIndex}-${emoji}`;
-            const alreadyReacted = myReactions[key];
-            const action = alreadyReacted ? "remove" : "add";
-
-            try {
-                const res = await fetch("/api/chat/react", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ index: msgIndex, emoji, action }),
-                });
-                const data = await res.json();
-                if (data.ok) {
-                    if (alreadyReacted) {
-                        delete myReactions[key];
-                    } else {
-                        myReactions[key] = true;
-                    }
-                    saveMyReactions(myReactions);
-                    loadChatMessages();
-                }
-            } catch (e) { /* silent */ }
-            closePicker();
-        }
-
         async function loadChatMessages() {
             try {
                 const res = await fetch("/api/chat");
                 const data = await res.json();
                 const msgs = data.messages || [];
-                if (msgs.length === lastMessageCount) {
-                    // Still refresh reactions even if count hasn't changed
-                }
+                
                 const newCount = msgs.length - lastMessageCount;
                 if (newCount > 0 && lastMessageCount > 0 && !drawerOpen) {
                     unreadCount += newCount;
@@ -672,32 +610,15 @@
                 }
 
                 const wasAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 20;
-                const myReactions = getMyReactions();
 
+                // Render messages without reaction HTML
                 container.innerHTML = msgs.map((m, i) => {
                     const cls = m.isAdmin ? "chat-msg-user admin-user" : "chat-msg-user";
-                    const reactions = m.reactions || {};
-                    const reactionBtns = Object.entries(reactions)
-                        .filter(([, count]) => count > 0)
-                        .map(([emoji, count]) => {
-                            const mine = myReactions[`${i}-${emoji}`] ? "reacted" : "";
-                            return `<button class="reaction-btn ${mine}" onclick="reactToMessage(${i},'${emoji}')">${emoji} ${count}</button>`;
-                        }).join("");
-
-                    const pickerBtns = REACTION_EMOJIS.map(e =>
-                        `<button class="emoji-pick-btn" onclick="reactToMessage(${i},'${e}')">${e}</button>`
-                    ).join("");
-
                     return `
                         <div class="chat-msg-wrap">
                             <div class="chat-msg">
                                 <span class="${cls}">${m.username}:</span>
                                 <span class="chat-msg-text">${m.text}</span>
-                            </div>
-                            <div class="chat-msg-reactions">
-                                ${reactionBtns}
-                                <button class="reaction-add-btn" onclick="openEmojiPicker(${i}, this)" title="React">+</button>
-                                <div class="emoji-picker" id="picker-${i}">${pickerBtns}</div>
                             </div>
                         </div>
                     `;
