@@ -47,6 +47,16 @@ form.addEventListener("submit", async (event) => {
 
 	const url = search(address.value, searchEngine.value);
 
+	// Track domain for stats
+	try {
+		const domain = new URL(url).hostname;
+		fetch("/api/track", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ domain }),
+		}).catch(() => {});
+	} catch (_) {}
+
 	let wispUrl =
 		(location.protocol === "https:" ? "wss" : "ws") +
 		"://" +

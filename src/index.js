@@ -15,11 +15,13 @@ import { baremuxPath } from "@mercuryworkshop/bare-mux/node";
 const publicPath = fileURLToPath(new URL("../public/", import.meta.url));
 
 // ── File Paths ────────────────────────────────────────────────────────────────
-const PASSWORDS_FILE    = path.resolve("passwords.txt");
-const ADMIN_FILE        = path.resolve("admin.txt");
-const KEY_META_FILE     = path.resolve("key-metadata.json");
+const PASSWORDS_FILE     = path.resolve("passwords.txt");
+const ADMIN_FILE         = path.resolve("admin.txt");
+const KEY_META_FILE      = path.resolve("key-metadata.json");
 const ANNOUNCEMENTS_FILE = path.resolve("announcements.json");
 const CHAT_FILE          = path.resolve("chat.json");
+const BLOCKLIST_FILE     = path.resolve("blocklist.json");
+const STATS_FILE         = path.resolve("stats.json");
 
 // ── Password Helpers ──────────────────────────────────────────────────────────
 function loadPasswords() {
@@ -87,7 +89,7 @@ function cleanExpiredKeys() {
 	if (valid.length !== passwords.length) savePasswords(valid);
 }
 setInterval(cleanExpiredKeys, 60 * 1000);
-cleanExpiredKeys(); // run on startup
+cleanExpiredKeys();
 
 // ── Announcements ─────────────────────────────────────────────────────────────
 function loadAnnouncements() {
@@ -100,8 +102,8 @@ function saveAnnouncements(arr) {
 	fs.writeFileSync(ANNOUNCEMENTS_FILE, JSON.stringify(arr, null, 2), "utf8");
 }
 
-// ── Chat (persisted to disk) ──────────────────────────────────────────────────
-const MAX_CHAT = 100;
+// ── Chat ──────────────────────────────────────────────────────────────────────
+const MAX_CHAT = 25;
 
 function loadChat() {
 	if (!fs.existsSync(CHAT_FILE)) return [];
@@ -111,6 +113,35 @@ function loadChat() {
 
 function saveChat(msgs) {
 	fs.writeFileSync(CHAT_FILE, JSON.stringify(msgs, null, 2), "utf8");
+}
+
+// ── Blocklist ─────────────────────────────────────────────────────────────────
+function loadBlocklist() {
+	if (!fs.existsSync(BLOCKLIST_FILE)) return [];
+	try { return JSON.parse(fs.readFileSync(BLOCKLIST_FILE, "utf8")); }
+	catch { return []; }
+}
+
+function saveBlocklist(list) {
+	fs.writeFileSync(BLOCKLIST_FILE, JSON.stringify(list, null, 2), "utf8");
+}
+
+function updateWispBlocklist() {
+	const domains = loadBlocklist();
+	wisp.options.hostname_blacklist = domains.map(
+		d => new RegExp(d.replace(/\./g, "\\.").replace(/\*/g, ".*"), "i")
+	);
+}
+
+// ── Stats ─────────────────────────────────────────────────────────────────────
+function loadStats() {
+	if (!fs.existsSync(STATS_FILE)) return { domains: {}, hourly: {} };
+	try { return JSON.parse(fs.readFileSync(STATS_FILE, "utf8")); }
+	catch { return { domains: {}, hourly: {} }; }
+}
+
+function saveStats(stats) {
+	fs.writeFileSync(STATS_FILE, JSON.stringify(stats, null, 2), "utf8");
 }
 
 // ── Session Store ─────────────────────────────────────────────────────────────
@@ -152,9 +183,12 @@ setInterval(() => {
 logging.set_level(logging.NONE);
 Object.assign(wisp.options, {
 	allow_udp_streams: false,
-	hostname_blacklist: [/example\.com/],
+	hostname_blacklist: [],
 	dns_servers: ["1.1.1.3", "1.0.0.3"],
 });
+
+// Apply persisted blocklist on startup
+updateWispBlocklist();
 
 // ── Fastify Setup ─────────────────────────────────────────────────────────────
 const fastify = Fastify({
@@ -312,7 +346,6 @@ fastify.post("/admin/api/passwords/add", async (req, reply) => {
 		return reply.code(400).send({ error: "Password already exists" });
 	passwords.push(password.trim());
 	savePasswords(passwords);
-	// Default to permanent
 	const meta = loadKeyMeta();
 	meta[password.trim()] = { expiresAt: null };
 	saveKeyMeta(meta);
@@ -328,7 +361,6 @@ fastify.post("/admin/api/passwords/rename", async (req, reply) => {
 	if (idx === -1) return reply.code(404).send({ error: "Password not found" });
 	passwords[idx] = newPassword.trim();
 	savePasswords(passwords);
-	// Migrate metadata
 	const meta = loadKeyMeta();
 	if (meta[oldPassword]) { meta[newPassword.trim()] = meta[oldPassword]; delete meta[oldPassword]; }
 	saveKeyMeta(meta);
@@ -342,7 +374,6 @@ fastify.post("/admin/api/passwords/delete", async (req, reply) => {
 	if (filtered.length === passwords.length)
 		return reply.code(404).send({ error: "Password not found" });
 	savePasswords(filtered);
-	// Remove metadata
 	const meta = loadKeyMeta();
 	delete meta[password];
 	saveKeyMeta(meta);
@@ -397,6 +428,53 @@ fastify.post("/admin/api/announcements/delete", async (req, reply) => {
 	return reply.send({ ok: true, announcements: list });
 });
 
+// ── Admin API: Blocklist ──────────────────────────────────────────────────────
+fastify.get("/admin/api/blocklist", async (req, reply) => {
+	return reply.send({ blocklist: loadBlocklist() });
+});
+
+fastify.post("/admin/api/blocklist/add", async (req, reply) => {
+	const { domain } = req.body ?? {};
+	if (!domain || domain.trim().length === 0)
+		return reply.code(400).send({ error: "Domain cannot be empty" });
+	const list = loadBlocklist();
+	if (list.includes(domain.trim()))
+		return reply.code(400).send({ error: "Domain already blocked" });
+	list.push(domain.trim());
+	saveBlocklist(list);
+	updateWispBlocklist();
+	return reply.send({ ok: true, blocklist: list });
+});
+
+fastify.post("/admin/api/blocklist/delete", async (req, reply) => {
+	const { domain } = req.body ?? {};
+	const list = loadBlocklist().filter(d => d !== domain);
+	saveBlocklist(list);
+	updateWispBlocklist();
+	return reply.send({ ok: true, blocklist: list });
+});
+
+// ── Admin API: Stats ──────────────────────────────────────────────────────────
+fastify.get("/admin/api/stats", async (req, reply) => {
+	const stats = loadStats();
+	const topDomains = Object.entries(stats.domains || {})
+		.sort((a, b) => b[1] - a[1])
+		.slice(0, 10);
+	const now = new Date();
+	const hourly = [];
+	for (let i = 23; i >= 0; i--) {
+		const d = new Date(now - i * 3600000);
+		const key = d.toISOString().slice(0, 13);
+		hourly.push({ hour: d.getHours() + ":00", count: stats.hourly?.[key] || 0 });
+	}
+	return reply.send({ topDomains, hourly });
+});
+
+fastify.post("/admin/api/stats/clear", async (req, reply) => {
+	saveStats({ domains: {}, hourly: {} });
+	return reply.send({ ok: true });
+});
+
 // ── Public API: Announcements ─────────────────────────────────────────────────
 fastify.get("/api/announcements", async (req, reply) => {
 	return reply.send({ announcements: loadAnnouncements() });
@@ -404,7 +482,7 @@ fastify.get("/api/announcements", async (req, reply) => {
 
 // ── Public API: Chat ──────────────────────────────────────────────────────────
 fastify.get("/api/chat", async (req, reply) => {
-	return reply.send({ messages: loadChat().slice(-50) });
+	return reply.send({ messages: loadChat().slice(-MAX_CHAT) });
 });
 
 fastify.post("/api/chat/send", async (req, reply) => {
@@ -418,11 +496,77 @@ fastify.post("/api/chat/send", async (req, reply) => {
 		text: text.trim().slice(0, 300).replace(/</g, "&lt;"),
 		timestamp: Date.now(),
 		isAdmin,
+		reactions: {},
 	};
 	const msgs = loadChat();
 	msgs.push(msg);
-	if (msgs.length > MAX_CHAT) msgs.shift();
+	if (msgs.length > MAX_CHAT) msgs.splice(0, msgs.length - MAX_CHAT);
 	saveChat(msgs);
+	return reply.send({ ok: true });
+});
+
+// ── Public API: Chat Reactions ────────────────────────────────────────────────
+fastify.post("/api/chat/react", async (req, reply) => {
+	const { index, emoji, action } = req.body ?? {};
+	if (index === undefined || !emoji)
+		return reply.code(400).send({ error: "Invalid request" });
+
+	// Only allow safe emoji (basic set)
+	const allowed = ["👍","❤️","😂","😮","🔥","💀"];
+	if (!allowed.includes(emoji))
+		return reply.code(400).send({ error: "Invalid emoji" });
+
+	const msgs = loadChat();
+	if (index < 0 || index >= msgs.length)
+		return reply.code(400).send({ error: "Invalid index" });
+
+	if (!msgs[index].reactions) msgs[index].reactions = {};
+
+	if (action === "remove") {
+		msgs[index].reactions[emoji] = Math.max(0, (msgs[index].reactions[emoji] || 0) - 1);
+		if (msgs[index].reactions[emoji] === 0) delete msgs[index].reactions[emoji];
+	} else {
+		msgs[index].reactions[emoji] = (msgs[index].reactions[emoji] || 0) + 1;
+	}
+
+	saveChat(msgs);
+	return reply.send({ ok: true, reactions: msgs[index].reactions });
+});
+
+// ── Public API: Search Suggestions ───────────────────────────────────────────
+fastify.get("/api/suggestions", async (req, reply) => {
+	const q = req.query?.q ?? "";
+	if (!q.trim()) return reply.send([]);
+	try {
+		const res = await fetch(
+			`https://duckduckgo.com/ac/?q=${encodeURIComponent(q)}&type=list`,
+			{ headers: { "User-Agent": "Mozilla/5.0" }, signal: AbortSignal.timeout(3000) }
+		);
+		const data = await res.json();
+		return reply.send(data[1] ?? []);
+	} catch {
+		return reply.send([]);
+	}
+});
+
+// ── Public API: Track Navigation ─────────────────────────────────────────────
+fastify.post("/api/track", async (req, reply) => {
+	const { domain } = req.body ?? {};
+	if (!domain) return reply.send({ ok: true });
+	const clean = domain.replace(/[^a-zA-Z0-9.\-]/g, "").slice(0, 253);
+	if (!clean) return reply.send({ ok: true });
+	const stats = loadStats();
+	if (!stats.domains) stats.domains = {};
+	if (!stats.hourly) stats.hourly = {};
+	const hour = new Date().toISOString().slice(0, 13);
+	stats.domains[clean] = (stats.domains[clean] || 0) + 1;
+	stats.hourly[hour] = (stats.hourly[hour] || 0) + 1;
+	// Keep hourly data for only last 7 days (168 hours)
+	const cutoff = new Date(Date.now() - 168 * 3600000).toISOString().slice(0, 13);
+	for (const key of Object.keys(stats.hourly)) {
+		if (key < cutoff) delete stats.hourly[key];
+	}
+	saveStats(stats);
 	return reply.send({ ok: true });
 });
 

@@ -1,0 +1,12 @@
+{
+  "domains": {
+    "www.google.com": 1,
+    "www.bing.com": 1,
+    "search.brave.com": 1,
+    "youtube.com": 1,
+    "play.geforcenow.com": 2
+  },
+  "hourly": {
+    "2026-04-25T07": 6
+  }
+}

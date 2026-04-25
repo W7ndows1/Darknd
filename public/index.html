@@ -15,196 +15,10 @@
         <script src="register-sw.js" defer></script>
         <script src="search.js" defer></script>
         <script src="index.js" defer></script>
-
-        <style>
-            /* ── Admin Shield ── */
-            .admin-shield {
-                position: fixed; top: 20px; left: 20px; z-index: 100;
-                color: rgba(255,255,255,0.2); transition: all 0.3s ease; text-decoration: none;
-            }
-            .admin-shield:hover { color: rgba(255,255,255,0.8); transform: scale(1.1); }
-
-            /* ── Tab Bar ── */
-            .tab-bar {
-                display: flex; gap: 0.5rem; align-items: center;
-                width: 100%; justify-content: center; flex-wrap: wrap;
-            }
-            .tab-btn {
-                display: flex; align-items: center; gap: 0.45rem;
-                padding: 0.38rem 0.75rem;
-                background: rgba(255,255,255,0.04);
-                border: 1px solid rgba(255,255,255,0.08);
-                border-radius: 8px; cursor: pointer; color: #888;
-                font-family: 'DM Mono', monospace; font-size: 0.68rem;
-                letter-spacing: 0.06em; transition: all 0.2s; text-decoration: none;
-                white-space: nowrap;
-            }
-            .tab-btn img { width: 14px; height: 14px; border-radius: 3px; opacity: 0.8; }
-            .tab-btn:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.18); color: #ddd; }
-            .tab-bar-divider { width: 1px; height: 14px; background: rgba(255,255,255,0.08); flex-shrink: 0; }
-
-            /* ════════════════════════════════════════
-               ANNOUNCEMENT TOASTS  (top-right, auto-hide)
-               ════════════════════════════════════════ */
-            #ann-stack {
-                position: fixed; top: 1.2rem; right: 1.4rem;
-                z-index: 50; display: flex; flex-direction: column; gap: 0.5rem;
-                align-items: flex-end; pointer-events: none;
-            }
-            .ann-toast {
-                pointer-events: auto;
-                display: flex; align-items: flex-start; gap: 0.55rem;
-                padding: 0.65rem 0.9rem;
-                background: rgba(12,12,12,0.75);
-                border: 1px solid rgba(255,255,255,0.09);
-                border-radius: 10px;
-                backdrop-filter: blur(18px) saturate(160%);
-                -webkit-backdrop-filter: blur(18px) saturate(160%);
-                box-shadow: 0 8px 32px rgba(0,0,0,0.45);
-                max-width: 280px;
-                opacity: 0; transform: translateX(18px);
-                transition: opacity 0.35s ease, transform 0.35s ease;
-            }
-            .ann-toast.visible { opacity: 1; transform: translateX(0); }
-            .ann-toast.hiding  { opacity: 0; transform: translateX(18px); }
-            .ann-toast-dot {
-                width: 6px; height: 6px; border-radius: 50%;
-                background: #e05555; flex-shrink: 0; margin-top: 0.3rem;
-                animation: ann-pulse 2s ease-in-out infinite;
-            }
-            @keyframes ann-pulse { 0%,100%{opacity:1} 50%{opacity:0.25} }
-            .ann-toast-text {
-                font-family: 'DM Mono', monospace; font-size: 0.73rem;
-                color: #bbb; line-height: 1.5; flex: 1;
-            }
-            .ann-toast-close {
-                background: none; border: none; color: #333; cursor: pointer;
-                font-size: 0.75rem; line-height: 1; padding: 0; flex-shrink: 0;
-                transition: color 0.2s; margin-top: 0.1rem;
-            }
-            .ann-toast-close:hover { color: #888; }
-
-            /* ════════════════════════════════════════
-               CHAT BUBBLE + DRAWER
-               ════════════════════════════════════════ */
-
-            /* Bubble toggle (bottom-right) */
-            #chat-bubble {
-                position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 50;
-                width: 46px; height: 46px; border-radius: 50%;
-                background: rgba(18,18,18,0.9);
-                border: 1px solid rgba(255,255,255,0.12);
-                backdrop-filter: blur(14px);
-                display: flex; align-items: center; justify-content: center;
-                cursor: pointer; transition: transform 0.2s, border-color 0.2s;
-                box-shadow: 0 6px 24px rgba(0,0,0,0.5);
-            }
-            #chat-bubble:hover { transform: scale(1.08); border-color: rgba(255,255,255,0.25); }
-            #chat-bubble svg { color: #555; transition: color 0.2s; }
-            #chat-bubble:hover svg { color: #aaa; }
-            #chat-unread {
-                position: absolute; top: -3px; right: -3px;
-                width: 14px; height: 14px; border-radius: 50%;
-                background: #e05555; border: 2px solid #080808;
-                font-family: 'DM Mono', monospace; font-size: 0.5rem;
-                color: #fff; display: none; align-items: center; justify-content: center;
-            }
-            #chat-unread.show { display: flex; }
-
-            /* Drawer */
-            #chat-drawer {
-                position: fixed; top: 0; right: 0; bottom: 0;
-                width: 300px; z-index: 60;
-                display: flex; flex-direction: column;
-                background: rgba(9,9,9,0.88);
-                border-left: 1px solid rgba(255,255,255,0.07);
-                backdrop-filter: blur(20px) saturate(160%);
-                -webkit-backdrop-filter: blur(20px) saturate(160%);
-                box-shadow: -16px 0 48px rgba(0,0,0,0.5);
-                transform: translateX(100%);
-                transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
-            }
-            #chat-drawer.open { transform: translateX(0); }
-
-            .drawer-header {
-                display: flex; align-items: center; justify-content: space-between;
-                padding: 1rem 1.1rem 0.85rem;
-                border-bottom: 1px solid rgba(255,255,255,0.06);
-                flex-shrink: 0;
-            }
-            .drawer-header-left { display: flex; align-items: center; gap: 0.5rem; }
-            .chat-dot { width: 7px; height: 7px; border-radius: 50%; background: #4caf87; }
-            .drawer-title {
-                font-family: 'DM Mono', monospace; font-size: 0.62rem;
-                letter-spacing: 0.2em; color: #555;
-            }
-            .drawer-close {
-                background: none; border: none; color: #333; cursor: pointer;
-                font-size: 1.1rem; line-height: 1; padding: 2px;
-                transition: color 0.2s;
-            }
-            .drawer-close:hover { color: #888; }
-
-            .drawer-messages {
-                flex: 1; overflow-y: auto; padding: 0.8rem 1.1rem;
-                display: flex; flex-direction: column; gap: 0.4rem;
-            }
-            .drawer-messages::-webkit-scrollbar { width: 3px; }
-            .drawer-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
-
-            .chat-msg { font-family: 'DM Mono', monospace; font-size: 0.7rem; line-height: 1.45; }
-            .chat-msg-user { color: #7ab4ff; font-weight: 400; }
-            .chat-msg-user.admin-user { color: #e05555; }
-            .chat-msg-text { color: #777; }
-            .chat-empty { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: #2a2a2a; text-align: center; margin-top: 2rem; }
-
-            .drawer-username-row {
-                display: flex; align-items: center; gap: 0.35rem;
-                padding: 0.4rem 1.1rem;
-                border-top: 1px solid rgba(255,255,255,0.05); flex-shrink: 0;
-            }
-            .drawer-username-label {
-                font-family: 'DM Mono', monospace; font-size: 0.6rem;
-                color: #383838; white-space: nowrap; flex-shrink: 0;
-            }
-            .drawer-username-input {
-                background: none; border: none; border-bottom: 1px solid transparent;
-                color: #777; font-family: 'DM Mono', monospace; font-size: 0.6rem;
-                outline: none; width: 100%; padding: 0; cursor: text;
-                transition: border-color 0.2s, color 0.2s;
-            }
-            .drawer-username-input:focus { border-bottom-color: rgba(255,255,255,0.15); color: #bbb; }
-
-            .drawer-input-row {
-                display: flex; gap: 0.4rem; padding: 0.65rem 1.1rem;
-                border-top: 1px solid rgba(255,255,255,0.05); flex-shrink: 0;
-            }
-            .drawer-input {
-                flex: 1; padding: 0.45rem 0.7rem;
-                background: rgba(255,255,255,0.04);
-                border: 1px solid rgba(255,255,255,0.07);
-                border-radius: 8px; color: #e0e0e0;
-                font-family: 'DM Mono', monospace; font-size: 0.72rem;
-                outline: none; transition: border-color 0.2s;
-            }
-            .drawer-input:focus { border-color: rgba(255,255,255,0.18); }
-            .drawer-send-btn {
-                padding: 0 0.75rem; background: rgba(255,255,255,0.07);
-                border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
-                color: #aaa; cursor: pointer; font-size: 0.9rem;
-                transition: background 0.2s; flex-shrink: 0;
-            }
-            .drawer-send-btn:hover { background: rgba(255,255,255,0.13); }
-
-            @media (max-width: 600px) {
-                #ann-stack { display: none; }
-                #chat-bubble { display: none; }
-                #chat-drawer { width: 100%; }
-            }
-        </style>
     </head>
 
     <body>
+        <!-- Admin link -->
         <a href="/admin" class="admin-shield" id="admin-link" title="Admin Panel">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
@@ -213,10 +27,10 @@
 
         <canvas id="bg"></canvas>
 
-        <!-- Announcement Toasts -->
+        <!-- Announcement stack -->
         <div id="ann-stack"></div>
 
-        <!-- Chat Bubble -->
+        <!-- Chat bubble -->
         <div id="chat-bubble" onclick="toggleDrawer()" title="Open Chat">
             <div id="chat-unread"></div>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -246,6 +60,74 @@
             </div>
         </div>
 
+        <!-- Settings Modal -->
+        <div id="settings-modal" onclick="handleSettingsOverlay(event)">
+            <div id="settings-card">
+                <div class="settings-header">
+                    <span class="settings-title">SETTINGS</span>
+                    <button class="settings-close" onclick="closeSettings()">✕</button>
+                </div>
+
+                <!-- Theme -->
+                <div class="settings-section">
+                    <span class="settings-label">THEME</span>
+                    <div class="theme-grid">
+                        <button class="theme-option active" data-theme="midnight" onclick="setTheme('midnight')">
+                            <span class="theme-swatch" style="background:#fff"></span>
+                            Midnight
+                        </button>
+                        <button class="theme-option" data-theme="neon" onclick="setTheme('neon')">
+                            <span class="theme-swatch" style="background:#00ff88"></span>
+                            Neon
+                        </button>
+                        <button class="theme-option" data-theme="nord" onclick="setTheme('nord')">
+                            <span class="theme-swatch" style="background:#88c0d0"></span>
+                            Nord
+                        </button>
+                        <button class="theme-option" data-theme="dracula" onclick="setTheme('dracula')">
+                            <span class="theme-swatch" style="background:#bd93f9"></span>
+                            Dracula
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Background -->
+                <div class="settings-section">
+                    <span class="settings-label">BACKGROUND</span>
+                    <div class="bg-options">
+                        <button class="bg-option active" data-bg="particles" onclick="setBg('particles')">Particles</button>
+                        <button class="bg-option" data-bg="solid" onclick="setBg('solid')">Solid</button>
+                        <button class="bg-option" data-bg="image" onclick="setBg('image')">Image</button>
+                    </div>
+                    <input class="settings-input" id="bg-image-url" type="text" placeholder="Image URL (for Image mode)..." />
+                    <button class="settings-action-btn" onclick="applyBgImage()">Apply Image URL</button>
+                </div>
+
+                <!-- Search engine -->
+                <div class="settings-section">
+                    <span class="settings-label">SEARCH ENGINE</span>
+                    <select class="settings-select" id="search-engine-select" onchange="setSearchEngine(this.value)">
+                        <option value="https://www.google.com/search?q=%s">Google</option>
+                        <option value="https://duckduckgo.com/?q=%s">DuckDuckGo</option>
+                        <option value="https://www.bing.com/search?q=%s">Bing</option>
+                        <option value="https://search.brave.com/search?q=%s">Brave Search</option>
+                        <option value="https://yandex.com/search/?text=%s">Yandex</option>
+                    </select>
+                </div>
+
+                <!-- Bookmarks -->
+                <div class="settings-section">
+                    <span class="settings-label">BOOKMARKS</span>
+                    <div class="bookmarks-list" id="bookmarks-list">
+                        <div class="bookmark-empty">No bookmarks saved</div>
+                    </div>
+                    <div class="settings-btn-row">
+                        <button class="settings-action-btn" onclick="addBookmark()">+ Bookmark Current Input</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <main>
             <div class="brand">
                 <div class="brand-mark">
@@ -260,6 +142,7 @@
             <form id="sj-form" class="search-wrap">
                 <input id="sj-search-engine" value="https://www.google.com/search?q=%s" type="hidden" />
                 <input id="sj-address" type="text" placeholder="Search or enter a URL..." autocomplete="off" spellcheck="false" />
+                <div id="autocomplete-list"></div>
                 <button type="submit" class="go-btn" aria-label="Go">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                         <line x1="5" y1="12" x2="19" y2="12"/>
@@ -268,7 +151,7 @@
                 </button>
             </form>
 
-            <!-- Quick Access Tab Bar -->
+            <!-- Tab Bar -->
             <div class="tab-bar">
                 <button class="tab-btn" onclick="tabNavigate('play.geforcenow.com')">
                     <img src="https://play.geforcenow.com/favicon.ico" alt="" onerror="this.style.display='none'" />
@@ -279,6 +162,14 @@
                     <img src="https://duckduckgo.com/favicon.ico" alt="" onerror="this.style.display='none'" />
                     DuckDuckGo
                 </button>
+                <div class="tab-bar-divider"></div>
+                <button class="cloaker-btn" onclick="openCloaker()" title="Open proxy in about:blank window">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                        <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                    </svg>
+                    Cloaker
+                </button>
             </div>
 
             <div class="error-wrap">
@@ -288,198 +179,536 @@
         </main>
 
         <footer>
-            <form method="POST" action="/logout">
+            <form method="POST" action="/logout" style="margin:0">
                 <button type="submit" class="logout-btn">LOGOUT</button>
             </form>
+            <button id="settings-trigger" onclick="openSettings()" title="Settings">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+            </button>
         </footer>
 
         <script>
-            // ── Particle Background ──────────────────────────────────────────
-            const canvas = document.getElementById("bg");
-            const ctx = canvas.getContext("2d");
-            let W, H, dots;
-            function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
-            function initDots() {
-                dots = Array.from({ length: 55 }, () => ({
-                    x: Math.random() * W, y: Math.random() * H,
-                    r: Math.random() * 1.4 + 0.3,
-                    vx: (Math.random() - 0.5) * 0.25, vy: (Math.random() - 0.5) * 0.25,
-                    a: Math.random() * 0.35 + 0.04,
-                }));
-            }
-            function draw() {
-                ctx.clearRect(0, 0, W, H);
-                for (const d of dots) {
-                    d.x += d.vx; d.y += d.vy;
-                    if (d.x < 0) d.x = W; if (d.x > W) d.x = 0;
-                    if (d.y < 0) d.y = H; if (d.y > H) d.y = 0;
-                    ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
-                    ctx.fillStyle = `rgba(255,255,255,${d.a})`; ctx.fill();
-                }
-                requestAnimationFrame(draw);
-            }
-            resize(); initDots(); draw();
-            window.addEventListener("resize", () => { resize(); initDots(); });
+        // ════════════════════════════════════════════════════════
+        // PARTICLE BACKGROUND
+        // ════════════════════════════════════════════════════════
+        const canvas = document.getElementById("bg");
+        const ctx = canvas.getContext("2d");
+        let W, H, dots;
 
-            // Hide UI when navigation starts
-            document.getElementById("sj-form").addEventListener("submit", () => {
-                document.querySelector("main").style.display = "none";
-                document.querySelector("footer").style.display = "none";
-                document.getElementById("bg").style.display = "none";
-                document.getElementById("admin-link").style.display = "none";
-                document.getElementById("ann-stack").style.display = "none";
-                document.getElementById("chat-bubble").style.display = "none";
-                document.getElementById("chat-drawer").style.display = "none";
+        function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+        function initDots() {
+            dots = Array.from({ length: 55 }, () => ({
+                x: Math.random() * W, y: Math.random() * H,
+                r: Math.random() * 1.4 + 0.3,
+                vx: (Math.random() - 0.5) * 0.25, vy: (Math.random() - 0.5) * 0.25,
+                a: Math.random() * 0.35 + 0.04,
+            }));
+        }
+
+        function getParticleColor() {
+            const style = getComputedStyle(document.documentElement);
+            return style.getPropertyValue("--particle-color").trim() || "255,255,255";
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, W, H);
+            const col = getParticleColor();
+            for (const d of dots) {
+                d.x += d.vx; d.y += d.vy;
+                if (d.x < 0) d.x = W; if (d.x > W) d.x = 0;
+                if (d.y < 0) d.y = H; if (d.y > H) d.y = 0;
+                ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(${col},${d.a})`; ctx.fill();
+            }
+            requestAnimationFrame(draw);
+        }
+
+        resize(); initDots(); draw();
+        window.addEventListener("resize", () => { resize(); initDots(); });
+
+        // ════════════════════════════════════════════════════════
+        // THEME SYSTEM
+        // ════════════════════════════════════════════════════════
+        const THEMES = ["midnight","neon","nord","dracula"];
+
+        function setTheme(theme) {
+            if (!THEMES.includes(theme)) theme = "midnight";
+            document.body.classList.remove(...THEMES.map(t => `theme-${t}`));
+            if (theme !== "midnight") document.body.classList.add(`theme-${theme}`);
+            document.querySelectorAll(".theme-option").forEach(btn => {
+                btn.classList.toggle("active", btn.dataset.theme === theme);
             });
+            localStorage.setItem("darknd_theme", theme);
+        }
 
-            // ── Tab Bar ──────────────────────────────────────────────────────
-            function tabNavigate(url) {
-                document.getElementById("sj-address").value = url;
-                document.getElementById("sj-form").requestSubmit();
+        // Init theme
+        setTheme(localStorage.getItem("darknd_theme") || "midnight");
+
+        // ════════════════════════════════════════════════════════
+        // BACKGROUND SYSTEM
+        // ════════════════════════════════════════════════════════
+        function setBg(mode, imageUrl) {
+            document.body.classList.remove("bg-image", "bg-solid");
+            document.body.style.backgroundImage = "";
+
+            if (mode === "solid") {
+                document.body.classList.add("bg-solid");
+            } else if (mode === "image") {
+                const url = imageUrl || localStorage.getItem("darknd_bg_url") || "";
+                if (url) {
+                    document.body.classList.add("bg-image");
+                    document.body.style.backgroundImage = `url(${CSS.escape ? `"${url}"` : url})`;
+                }
             }
+            // "particles" = default (no extra class)
 
-            // ── Announcement Toasts ──────────────────────────────────────────
-            let shownAnnouncements = new Set(
-                JSON.parse(localStorage.getItem("darknd_seen_ann") || "[]")
-            );
+            document.querySelectorAll(".bg-option").forEach(btn => {
+                btn.classList.toggle("active", btn.dataset.bg === mode);
+            });
+            localStorage.setItem("darknd_bg", mode);
+        }
 
-            function saveSeenAnn() {
-                localStorage.setItem("darknd_seen_ann", JSON.stringify([...shownAnnouncements]));
+        function applyBgImage() {
+            const url = document.getElementById("bg-image-url").value.trim();
+            if (!url) return;
+            localStorage.setItem("darknd_bg_url", url);
+            setBg("image", url);
+        }
+
+        // Init background
+        (function() {
+            const savedBg = localStorage.getItem("darknd_bg") || "particles";
+            const savedUrl = localStorage.getItem("darknd_bg_url") || "";
+            if (savedUrl) document.getElementById("bg-image-url").value = savedUrl;
+            setBg(savedBg, savedUrl);
+        })();
+
+        // ════════════════════════════════════════════════════════
+        // SEARCH ENGINE
+        // ════════════════════════════════════════════════════════
+        function setSearchEngine(val) {
+            document.getElementById("sj-search-engine").value = val;
+            localStorage.setItem("darknd_engine", val);
+        }
+
+        (function() {
+            const saved = localStorage.getItem("darknd_engine");
+            if (saved) {
+                document.getElementById("sj-search-engine").value = saved;
+                const sel = document.getElementById("search-engine-select");
+                for (const opt of sel.options) {
+                    if (opt.value === saved) { opt.selected = true; break; }
+                }
             }
+        })();
 
-            function showToast(text, id) {
-                const stack = document.getElementById("ann-stack");
-                const toast = document.createElement("div");
-                toast.className = "ann-toast";
-                toast.innerHTML = `
-                    <span class="ann-toast-dot"></span>
-                    <span class="ann-toast-text">${text}</span>
-                    <button class="ann-toast-close" onclick="dismissToast(this, '${id}')">✕</button>
-                `;
-                stack.appendChild(toast);
-                // Animate in
-                requestAnimationFrame(() => {
-                    requestAnimationFrame(() => toast.classList.add("visible"));
+        // ════════════════════════════════════════════════════════
+        // SETTINGS MODAL
+        // ════════════════════════════════════════════════════════
+        function openSettings() {
+            document.getElementById("settings-modal").classList.add("open");
+        }
+
+        function closeSettings() {
+            document.getElementById("settings-modal").classList.remove("open");
+        }
+
+        function handleSettingsOverlay(e) {
+            if (e.target === document.getElementById("settings-modal")) closeSettings();
+        }
+
+        // ════════════════════════════════════════════════════════
+        // BOOKMARKS
+        // ════════════════════════════════════════════════════════
+        function loadBookmarks() {
+            try { return JSON.parse(localStorage.getItem("darknd_bookmarks") || "[]"); }
+            catch { return []; }
+        }
+
+        function saveBookmarks(bms) {
+            localStorage.setItem("darknd_bookmarks", JSON.stringify(bms));
+        }
+
+        function renderBookmarks() {
+            const list = document.getElementById("bookmarks-list");
+            const bms = loadBookmarks();
+            if (bms.length === 0) {
+                list.innerHTML = '<div class="bookmark-empty">No bookmarks saved</div>';
+                return;
+            }
+            list.innerHTML = bms.map((bm, i) => `
+                <div class="bookmark-item">
+                    <img class="bookmark-favicon"
+                        src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(bm.url)}&sz=32"
+                        onerror="this.style.display='none'" alt="" />
+                    <span class="bookmark-name" onclick="navigateBookmark('${encodeURIComponent(bm.url)}')" title="${bm.url}">
+                        ${bm.name || bm.url}
+                    </span>
+                    <button class="bookmark-del" onclick="deleteBookmark(${i})" title="Remove">✕</button>
+                </div>
+            `).join("");
+        }
+
+        function addBookmark() {
+            const val = document.getElementById("sj-address").value.trim();
+            if (!val) return;
+            const bms = loadBookmarks();
+            if (bms.some(b => b.url === val)) return;
+            bms.push({ name: val.length > 30 ? val.slice(0, 30) + "…" : val, url: val });
+            saveBookmarks(bms);
+            renderBookmarks();
+        }
+
+        function deleteBookmark(i) {
+            const bms = loadBookmarks();
+            bms.splice(i, 1);
+            saveBookmarks(bms);
+            renderBookmarks();
+        }
+
+        function navigateBookmark(encodedUrl) {
+            closeSettings();
+            const url = decodeURIComponent(encodedUrl);
+            document.getElementById("sj-address").value = url;
+            document.getElementById("sj-form").requestSubmit();
+        }
+
+        renderBookmarks();
+
+        // ════════════════════════════════════════════════════════
+        // AUTOCOMPLETE
+        // ════════════════════════════════════════════════════════
+        const acList = document.getElementById("autocomplete-list");
+        let acTimeout = null;
+        let acActive = false;
+
+        document.getElementById("sj-address").addEventListener("input", function() {
+            clearTimeout(acTimeout);
+            const val = this.value.trim();
+            if (!val || val.startsWith("http")) {
+                hideAC();
+                return;
+            }
+            acTimeout = setTimeout(() => fetchSuggestions(val), 200);
+        });
+
+        document.getElementById("sj-address").addEventListener("keydown", function(e) {
+            if (e.key === "Escape") hideAC();
+        });
+
+        document.addEventListener("click", function(e) {
+            if (!e.target.closest(".search-wrap")) hideAC();
+        });
+
+        async function fetchSuggestions(q) {
+            try {
+                const res = await fetch(`/api/suggestions?q=${encodeURIComponent(q)}`);
+                const items = await res.json();
+                if (!items.length) { hideAC(); return; }
+                showAC(items.slice(0, 6), q);
+            } catch { hideAC(); }
+        }
+
+        function showAC(items, q) {
+            acList.innerHTML = items.map(item => {
+                const escaped = item.replace(/</g, "&lt;");
+                const highlighted = escaped.replace(
+                    new RegExp("^" + q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i"),
+                    match => `<mark>${match}</mark>`
+                );
+                return `<div class="autocomplete-item" onclick="pickAC('${encodeURIComponent(item)}')">${highlighted}</div>`;
+            }).join("");
+            acList.classList.add("visible");
+            acActive = true;
+        }
+
+        function hideAC() {
+            acList.classList.remove("visible");
+            acActive = false;
+        }
+
+        function pickAC(encodedVal) {
+            document.getElementById("sj-address").value = decodeURIComponent(encodedVal);
+            hideAC();
+            document.getElementById("sj-form").requestSubmit();
+        }
+
+        // ════════════════════════════════════════════════════════
+        // ABOUT:BLANK CLOAKER
+        // ════════════════════════════════════════════════════════
+        function openCloaker() {
+            const blank = window.open("about:blank", "_blank");
+            if (!blank) return;
+            blank.document.write(`<!doctype html><html><head>
+                <title>Google Classroom</title>
+                <style>*{margin:0;padding:0;overflow:hidden}body{background:#000}</style>
+            </head><body>
+                <iframe src="${location.href}" style="width:100vw;height:100vh;border:none;display:block"></iframe>
+            </body></html>`);
+            blank.document.close();
+        }
+
+        // ════════════════════════════════════════════════════════
+        // HIDE UI ON PROXY LAUNCH
+        // ════════════════════════════════════════════════════════
+        document.getElementById("sj-form").addEventListener("submit", () => {
+            document.querySelector("main").style.display = "none";
+            document.querySelector("footer").style.display = "none";
+            document.getElementById("bg").style.display = "none";
+            document.getElementById("admin-link").style.display = "none";
+            document.getElementById("ann-stack").style.display = "none";
+            document.getElementById("chat-bubble").style.display = "none";
+            document.getElementById("chat-drawer").style.display = "none";
+            document.getElementById("settings-modal").style.display = "none";
+        });
+
+        // ════════════════════════════════════════════════════════
+        // TAB BAR
+        // ════════════════════════════════════════════════════════
+        function tabNavigate(url) {
+            document.getElementById("sj-address").value = url;
+            document.getElementById("sj-form").requestSubmit();
+        }
+
+        // ════════════════════════════════════════════════════════
+        // ANNOUNCEMENTS
+        // ════════════════════════════════════════════════════════
+        let shownAnnouncements = new Set(
+            JSON.parse(localStorage.getItem("darknd_seen_ann") || "[]")
+        );
+
+        function saveSeenAnn() {
+            localStorage.setItem("darknd_seen_ann", JSON.stringify([...shownAnnouncements]));
+        }
+
+        function showToast(text, id) {
+            const stack = document.getElementById("ann-stack");
+            const toast = document.createElement("div");
+            toast.className = "ann-toast";
+            toast.innerHTML = `
+                <span class="ann-toast-dot"></span>
+                <span class="ann-toast-text">${text}</span>
+                <button class="ann-toast-close" onclick="dismissToast(this, '${id}')">✕</button>
+            `;
+            stack.appendChild(toast);
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => toast.classList.add("visible"));
+            });
+            setTimeout(() => dismissToast(toast.querySelector(".ann-toast-close"), id), 30000);
+        }
+
+        function dismissToast(btn, id) {
+            const toast = btn.closest(".ann-toast");
+            if (!toast || toast.classList.contains("hiding")) return;
+            toast.classList.add("hiding");
+            toast.classList.remove("visible");
+            setTimeout(() => toast.remove(), 380);
+            shownAnnouncements.add(id);
+            saveSeenAnn();
+        }
+
+        async function loadAnnouncements() {
+            try {
+                const res = await fetch("/api/announcements");
+                const data = await res.json();
+                const list = data.announcements || [];
+                list.forEach((text, i) => {
+                    const id = `ann-${i}-${text.slice(0, 20)}`;
+                    if (!shownAnnouncements.has(id)) showToast(text, id);
                 });
-                // Auto-hide after 30 seconds
-                setTimeout(() => dismissToast(toast.querySelector(".ann-toast-close"), id), 30000);
-            }
-
-            function dismissToast(btn, id) {
-                const toast = btn.closest(".ann-toast");
-                if (!toast || toast.classList.contains("hiding")) return;
-                toast.classList.add("hiding");
-                toast.classList.remove("visible");
-                setTimeout(() => toast.remove(), 380);
-                shownAnnouncements.add(id);
+                const currentIds = new Set(list.map((t, i) => `ann-${i}-${t.slice(0, 20)}`));
+                for (const id of shownAnnouncements) {
+                    if (!currentIds.has(id)) shownAnnouncements.delete(id);
+                }
                 saveSeenAnn();
-            }
+            } catch (e) { /* silent */ }
+        }
 
-            async function loadAnnouncements() {
-                try {
-                    const res = await fetch("/api/announcements");
-                    const data = await res.json();
-                    const list = data.announcements || [];
-                    list.forEach((text, i) => {
-                        const id = `ann-${i}-${text.slice(0,20)}`;
-                        if (!shownAnnouncements.has(id)) showToast(text, id);
-                    });
-                    // Clear seen set for announcements that no longer exist
-                    const currentIds = new Set(list.map((t, i) => `ann-${i}-${t.slice(0,20)}`));
-                    for (const id of shownAnnouncements) {
-                        if (!currentIds.has(id)) shownAnnouncements.delete(id);
-                    }
-                    saveSeenAnn();
-                } catch (e) { /* silent */ }
-            }
-            loadAnnouncements();
-            setInterval(loadAnnouncements, 20000);
+        loadAnnouncements();
+        setInterval(loadAnnouncements, 20000);
 
-            // ── Chat Drawer ──────────────────────────────────────────────────
-            let drawerOpen = false;
-            let lastMessageCount = 0;
-            let unreadCount = 0;
-            let chatUsername = localStorage.getItem("darknd_username") || "Anonymous";
+        // ════════════════════════════════════════════════════════
+        // CHAT DRAWER
+        // ════════════════════════════════════════════════════════
+        let drawerOpen = false;
+        let lastMessageCount = 0;
+        let unreadCount = 0;
+        let chatUsername = localStorage.getItem("darknd_username") || "Anonymous";
 
-            const usernameInput = document.getElementById("username-display");
+        const usernameInput = document.getElementById("username-display");
+        usernameInput.value = chatUsername;
+        usernameInput.addEventListener("change", () => {
+            const val = usernameInput.value.trim().slice(0, 20);
+            chatUsername = val || "Anonymous";
             usernameInput.value = chatUsername;
-            usernameInput.addEventListener("change", () => {
-                const val = usernameInput.value.trim().slice(0, 20);
-                chatUsername = val || "Anonymous";
-                usernameInput.value = chatUsername;
-                localStorage.setItem("darknd_username", chatUsername);
-            });
-            usernameInput.addEventListener("keydown", e => { if (e.key === "Enter") usernameInput.blur(); });
+            localStorage.setItem("darknd_username", chatUsername);
+        });
+        usernameInput.addEventListener("keydown", e => { if (e.key === "Enter") usernameInput.blur(); });
 
-            function toggleDrawer() {
-                drawerOpen = !drawerOpen;
-                document.getElementById("chat-drawer").classList.toggle("open", drawerOpen);
-                if (drawerOpen) {
-                    unreadCount = 0;
-                    updateUnreadBadge();
-                    setTimeout(() => {
-                        const msgs = document.getElementById("chat-messages");
-                        msgs.scrollTop = msgs.scrollHeight;
-                    }, 50);
-                }
+        function toggleDrawer() {
+            drawerOpen = !drawerOpen;
+            document.getElementById("chat-drawer").classList.toggle("open", drawerOpen);
+            if (drawerOpen) {
+                unreadCount = 0;
+                updateUnreadBadge();
+                setTimeout(() => {
+                    const msgs = document.getElementById("chat-messages");
+                    msgs.scrollTop = msgs.scrollHeight;
+                }, 50);
             }
+        }
 
-            function updateUnreadBadge() {
-                const badge = document.getElementById("chat-unread");
-                if (unreadCount > 0 && !drawerOpen) {
-                    badge.textContent = unreadCount > 9 ? "9+" : unreadCount;
-                    badge.classList.add("show");
-                } else {
-                    badge.classList.remove("show");
-                }
+        function updateUnreadBadge() {
+            const badge = document.getElementById("chat-unread");
+            if (unreadCount > 0 && !drawerOpen) {
+                badge.textContent = unreadCount > 9 ? "9+" : unreadCount;
+                badge.classList.add("show");
+            } else {
+                badge.classList.remove("show");
             }
+        }
 
-            async function sendMessage() {
-                const input = document.getElementById("chat-input");
-                const text = input.value.trim();
-                if (!text) return;
-                input.value = "";
-                try {
-                    await fetch("/api/chat/send", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ username: chatUsername, text }),
-                    });
+        async function sendMessage() {
+            const input = document.getElementById("chat-input");
+            const text = input.value.trim();
+            if (!text) return;
+            input.value = "";
+            try {
+                await fetch("/api/chat/send", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username: chatUsername, text }),
+                });
+                loadChatMessages();
+            } catch (e) { /* silent */ }
+        }
+
+        document.getElementById("chat-input").addEventListener("keydown", e => {
+            if (e.key === "Enter") sendMessage();
+        });
+
+        // Reactions — track what the user has reacted to via localStorage
+        function getMyReactions() {
+            try { return JSON.parse(localStorage.getItem("darknd_reactions") || "{}"); }
+            catch { return {}; }
+        }
+
+        function saveMyReactions(r) {
+            localStorage.setItem("darknd_reactions", JSON.stringify(r));
+        }
+
+        const REACTION_EMOJIS = ["👍","❤️","😂","😮","🔥","💀"];
+        // Active emoji picker state
+        let pickerMsgIndex = null;
+        let pickerEl = null;
+
+        function closePicker() {
+            if (pickerEl) { pickerEl.classList.remove("open"); }
+            pickerMsgIndex = null;
+        }
+
+        function openEmojiPicker(msgIndex, anchorEl) {
+            closePicker();
+            // Build/reuse a picker near the anchor
+            let picker = document.getElementById(`picker-${msgIndex}`);
+            if (!picker) return;
+            picker.classList.add("open");
+            pickerEl = picker;
+            pickerMsgIndex = msgIndex;
+            // Close if clicking outside
+            setTimeout(() => {
+                document.addEventListener("click", closePicker, { once: true });
+            }, 10);
+        }
+
+        async function reactToMessage(msgIndex, emoji) {
+            const myReactions = getMyReactions();
+            const key = `${msgIndex}-${emoji}`;
+            const alreadyReacted = myReactions[key];
+            const action = alreadyReacted ? "remove" : "add";
+
+            try {
+                const res = await fetch("/api/chat/react", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ index: msgIndex, emoji, action }),
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    if (alreadyReacted) {
+                        delete myReactions[key];
+                    } else {
+                        myReactions[key] = true;
+                    }
+                    saveMyReactions(myReactions);
                     loadChatMessages();
-                } catch (e) { /* silent */ }
-            }
+                }
+            } catch (e) { /* silent */ }
+            closePicker();
+        }
 
-            document.getElementById("chat-input").addEventListener("keydown", e => {
-                if (e.key === "Enter") sendMessage();
-            });
+        async function loadChatMessages() {
+            try {
+                const res = await fetch("/api/chat");
+                const data = await res.json();
+                const msgs = data.messages || [];
+                if (msgs.length === lastMessageCount) {
+                    // Still refresh reactions even if count hasn't changed
+                }
+                const newCount = msgs.length - lastMessageCount;
+                if (newCount > 0 && lastMessageCount > 0 && !drawerOpen) {
+                    unreadCount += newCount;
+                    updateUnreadBadge();
+                }
+                lastMessageCount = msgs.length;
 
-            async function loadChatMessages() {
-                try {
-                    const res = await fetch("/api/chat");
-                    const data = await res.json();
-                    const msgs = data.messages || [];
-                    if (msgs.length === lastMessageCount) return;
-                    const newCount = msgs.length - lastMessageCount;
-                    if (newCount > 0 && lastMessageCount > 0 && !drawerOpen) {
-                        unreadCount += newCount;
-                        updateUnreadBadge();
-                    }
-                    lastMessageCount = msgs.length;
-                    const container = document.getElementById("chat-messages");
-                    if (msgs.length === 0) {
-                        container.innerHTML = '<div class="chat-empty">No messages yet</div>';
-                        return;
-                    }
-                    const wasAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 20;
-                    container.innerHTML = msgs.map(m => {
-                        const cls = m.isAdmin ? "chat-msg-user admin-user" : "chat-msg-user";
-                        return `<div class="chat-msg"><span class="${cls}">${m.username}:</span> <span class="chat-msg-text">${m.text}</span></div>`;
-                    }).join("");
-                    if (wasAtBottom || drawerOpen) container.scrollTop = container.scrollHeight;
-                } catch (e) { /* silent */ }
-            }
-            loadChatMessages();
-            setInterval(loadChatMessages, 2500);
+                const container = document.getElementById("chat-messages");
+                if (msgs.length === 0) {
+                    container.innerHTML = '<div class="chat-empty">No messages yet</div>';
+                    return;
+                }
+
+                const wasAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 20;
+                const myReactions = getMyReactions();
+
+                container.innerHTML = msgs.map((m, i) => {
+                    const cls = m.isAdmin ? "chat-msg-user admin-user" : "chat-msg-user";
+                    const reactions = m.reactions || {};
+                    const reactionBtns = Object.entries(reactions)
+                        .filter(([, count]) => count > 0)
+                        .map(([emoji, count]) => {
+                            const mine = myReactions[`${i}-${emoji}`] ? "reacted" : "";
+                            return `<button class="reaction-btn ${mine}" onclick="reactToMessage(${i},'${emoji}')">${emoji} ${count}</button>`;
+                        }).join("");
+
+                    const pickerBtns = REACTION_EMOJIS.map(e =>
+                        `<button class="emoji-pick-btn" onclick="reactToMessage(${i},'${e}')">${e}</button>`
+                    ).join("");
+
+                    return `
+                        <div class="chat-msg-wrap">
+                            <div class="chat-msg">
+                                <span class="${cls}">${m.username}:</span>
+                                <span class="chat-msg-text">${m.text}</span>
+                            </div>
+                            <div class="chat-msg-reactions">
+                                ${reactionBtns}
+                                <button class="reaction-add-btn" onclick="openEmojiPicker(${i}, this)" title="React">+</button>
+                                <div class="emoji-picker" id="picker-${i}">${pickerBtns}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join("");
+
+                if (wasAtBottom || drawerOpen) container.scrollTop = container.scrollHeight;
+            } catch (e) { /* silent */ }
+        }
+
+        loadChatMessages();
+        setInterval(loadChatMessages, 2500);
         </script>
     </body>
 </html>
