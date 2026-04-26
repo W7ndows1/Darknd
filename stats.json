@@ -4,9 +4,10 @@
     "www.bing.com": 1,
     "search.brave.com": 1,
     "youtube.com": 1,
-    "play.geforcenow.com": 2
+    "play.geforcenow.com": 4
   },
   "hourly": {
-    "2026-04-25T07": 6
+    "2026-04-25T07": 7,
+    "2026-04-26T02": 1
   }
 }
