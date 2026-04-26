@@ -21,7 +21,12 @@ const KEY_META_FILE      = path.resolve("key-metadata.json");
 const ANNOUNCEMENTS_FILE = path.resolve("announcements.json");
 const CHAT_FILE          = path.resolve("chat.json");
 const BLOCKLIST_FILE     = path.resolve("blocklist.json");
-const STATS_FILE         = path.resolve("stats.json");
+const STATS_FILE         = path.resolve("stats.txt");
+
+// Hash password
+function hashPassword(password) {
+	return crypto.createHash("sha256").update(password).digest("hex");
+}
 
 // ── Password Helpers ──────────────────────────────────────────────────────────
 function loadPasswords() {
@@ -158,6 +163,11 @@ function isValidSession(token) {
 	if (Date.now() - session.createdAt > SESSION_MAX_AGE_MS) {
 		sessions.delete(token); return false;
 	}
+	// Check if the key/password used to create this session has expired
+	if (session.password && isKeyExpired(session.password)) {
+		sessions.delete(token);
+		return false;
+	}
 	return true;
 }
 
@@ -246,6 +256,13 @@ fastify.addHook("onRequest", async (req, reply) => {
 	if (!isValidSession(token)) return reply.code(302).header("Location", "/login").send();
 });
 
+// ── Session Check Endpoint ────────────────────────────────────────────────────
+fastify.get("/api/session/check", async (req, reply) => {
+	const token = getTokenFromCookie(req.headers.cookie);
+	const valid = isValidSession(token);
+	return reply.send({ valid, isAdmin: isAdminSession(token) });
+});
+
 // ── Regular Auth Routes ───────────────────────────────────────────────────────
 fastify.get("/login", async (req, reply) => {
 	const token = getTokenFromCookie(req.headers.cookie);
@@ -257,7 +274,7 @@ fastify.post("/login", async (req, reply) => {
 	const password = req.body?.password ?? "";
 	if (isValidPassword(password)) {
 		const token = createSessionToken();
-		sessions.set(token, { createdAt: Date.now(), isAdmin: false });
+		sessions.set(token, { createdAt: Date.now(), isAdmin: false, password: password.trim() });
 		totalLogins++;
 		return reply
 			.code(302)
@@ -287,7 +304,7 @@ fastify.post("/admin/login", async (req, reply) => {
 	const password = req.body?.password ?? "";
 	if (isValidAdminPassword(password)) {
 		const token = createSessionToken();
-		sessions.set(token, { createdAt: Date.now(), isAdmin: true });
+		sessions.set(token, { createdAt: Date.now(), isAdmin: true, password: password.trim() });
 		return reply
 			.code(302)
 			.header("Set-Cookie", `sj_session=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${SESSION_MAX_AGE_MS / 1000}`)
@@ -307,6 +324,11 @@ fastify.post("/admin/logout", async (req, reply) => {
 
 fastify.get("/admin", async (req, reply) => {
 	return reply.code(200).type("text/html").sendFile("admin.html");
+});
+
+// ── App Route (Proxy Interface) ────────────────────────────────────────────────
+fastify.get("/app", async (req, reply) => {
+	return reply.code(200).type("text/html").sendFile("app.html");
 });
 
 // ── Admin API: State ──────────────────────────────────────────────────────────

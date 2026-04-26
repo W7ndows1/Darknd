@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🖤</text></svg>" />
+        <link rel="icon" href="logo.png" />
         <title>Darknd</title>
 
         <script src="/scram/scramjet.all.js"></script>
@@ -16,6 +16,160 @@
         <script src="search.js" defer></script>
         <script src="index.js" defer></script>
     </head>
+
+    <style>
+        /* Enhanced Colors for Main Page */
+        .headline {
+            background: linear-gradient(135deg, #fff 0%, #c0c0d0 50%, #9b7ef8 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 30px rgba(124, 90, 240, 0.3));
+            animation: headline-glow 3s ease-in-out infinite;
+        }
+
+        @keyframes headline-glow {
+            0%, 100% { filter: drop-shadow(0 0 30px rgba(124, 90, 240, 0.3)); }
+            50% { filter: drop-shadow(0 0 50px rgba(124, 90, 240, 0.5)); }
+        }
+
+        .search-wrap {
+            position: relative;
+        }
+
+        .search-wrap::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, rgba(124, 90, 240, 0.5), rgba(155, 126, 248, 0.3), rgba(124, 90, 240, 0.5));
+            z-index: -1;
+            animation: border-rotate 4s linear infinite;
+            opacity: 0.6;
+        }
+
+        @keyframes border-rotate {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        .search-wrap::before {
+            animation: border-rotate 12s linear infinite;
+        }
+
+        .go-btn {
+            background: linear-gradient(135deg, #7c5af0 0%, #9b7ef8 100%);
+            box-shadow: 0 4px 20px rgba(124, 90, 240, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .go-btn:hover {
+            background: linear-gradient(135deg, #8b6af5 0%, #aa8ef9 100%);
+            box-shadow: 0 6px 30px rgba(124, 90, 240, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .brand-mark .b1 {
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            animation: brand-glow 2s ease-in-out infinite;
+        }
+
+        .brand-mark .b2 {
+            box-shadow: 0 0 25px rgba(124, 90, 240, 0.8);
+            animation: brand-glow 2s ease-in-out infinite reverse;
+        }
+
+        @keyframes brand-glow {
+            0%, 100% { box-shadow: 0 0 20px currentColor; }
+            50% { box-shadow: 0 0 40px currentColor; }
+        }
+
+        .brand-sub {
+            color: #9b7ef8;
+            text-shadow: 0 0 10px rgba(155, 126, 248, 0.5);
+            letter-spacing: 0.3em;
+        }
+
+        .action-btns button {
+            background: rgba(124, 90, 240, 0.1);
+            border: 1px solid rgba(124, 90, 240, 0.3);
+            color: #b8a9f0;
+            transition: all 0.3s ease;
+        }
+
+        .action-btns button:hover {
+            background: rgba(124, 90, 240, 0.2);
+            border-color: rgba(124, 90, 240, 0.6);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(124, 90, 240, 0.3);
+        }
+
+        .action-btns button[onclick*="cloaker"] {
+            border-color: rgba(74, 222, 128, 0.4);
+            color: #86efac;
+        }
+
+        .action-btns button[onclick*="cloaker"]:hover {
+            background: rgba(74, 222, 128, 0.15);
+            border-color: rgba(74, 222, 128, 0.7);
+            box-shadow: 0 4px 20px rgba(74, 222, 128, 0.3);
+        }
+
+        /* Enhanced time widget */
+        .time-widget {
+            background: transparent;
+            border: none;
+            box-shadow: none;
+        }
+
+        .time-display {
+            color: #fff;
+            text-shadow: 0 0 20px rgba(124, 90, 240, 0.5);
+        }
+
+        /* Enhanced help button */
+        .help-btn {
+            background: rgba(124, 90, 240, 0.15);
+            border: 1px solid rgba(124, 90, 240, 0.4);
+            color: #b8a9f0;
+            box-shadow: 0 4px 15px rgba(124, 90, 240, 0.2);
+        }
+
+        .help-btn:hover {
+            background: rgba(124, 90, 240, 0.25);
+            border-color: rgba(124, 90, 240, 0.7);
+            color: #fff;
+            box-shadow: 0 6px 25px rgba(124, 90, 240, 0.4);
+        }
+
+        /* Enhanced admin shield */
+        .admin-shield {
+            color: rgba(124, 90, 240, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .admin-shield:hover {
+            color: rgba(155, 126, 248, 0.9);
+            filter: drop-shadow(0 0 10px rgba(124, 90, 240, 0.6));
+            transform: scale(1.15);
+        }
+
+        /* Enhanced search input */
+        #sj-address {
+            background: rgba(20, 20, 28, 0.8);
+            border: 1px solid rgba(124, 90, 240, 0.15);
+            color: #fff;
+        }
+
+        #sj-address:focus {
+            border-color: rgba(124, 90, 240, 0.5);
+            box-shadow: 0 0 20px rgba(124, 90, 240, 0.2);
+        }
+
+        #sj-address::placeholder {
+            color: rgba(155, 126, 248, 0.5);
+        }
+    </style>
 
     <body>
         <!-- Admin link -->
@@ -60,6 +214,53 @@
             </div>
         </div>
 
+        <!-- Keyboard Shortcuts Modal -->
+        <div id="shortcuts-modal" onclick="handleShortcutsOverlay(event)">
+            <div id="shortcuts-card">
+                <div class="shortcuts-header">
+                    <span class="shortcuts-title">KEYBOARD SHORTCUTS</span>
+                    <button class="shortcuts-close" onclick="closeShortcuts()">&#10005;</button>
+                </div>
+                <div class="shortcuts-list">
+                    <div class="shortcut-item">
+                        <kbd>Enter</kbd>
+                        <span>Submit search</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>Escape</kbd>
+                        <span>Close modals / stop loading</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>/</kbd>
+                        <span>Focus search bar</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>?</kbd>
+                        <span>Open this help</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>Ctrl</kbd> + <kbd>K</kbd>
+                        <span>Quick settings</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>C</kbd>
+                        <span>Open chat</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>S</kbd>
+                        <span>Toggle settings</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>&#8593;</kbd> <kbd>&#8595;</kbd>
+                        <span>Navigate autocomplete</span>
+                    </div>
+                </div>
+                <div class="shortcuts-footer">
+                    <span>Press any key to close</span>
+                </div>
+            </div>
+        </div>
+
         <!-- Settings Modal -->
         <div id="settings-modal" onclick="handleSettingsOverlay(event)">
             <div id="settings-card">
@@ -98,6 +299,7 @@
                         <button class="bg-option active" data-bg="particles" onclick="setBg('particles')">Particles</button>
                         <button class="bg-option" data-bg="solid" onclick="setBg('solid')">Solid</button>
                         <button class="bg-option" data-bg="image" onclick="setBg('image')">Image</button>
+                        <button class="bg-option-reset" onclick="clearBgImage()" title="Clear Image">×</button>
                     </div>
                     <input class="settings-input" id="bg-image-url" type="text" placeholder="Image URL (for Image mode)..." />
                     <button class="settings-action-btn" onclick="applyBgImage()">Apply Image URL</button>
@@ -115,6 +317,32 @@
                     </select>
                 </div>
 
+                <!-- Performance -->
+                <div class="settings-section">
+                    <span class="settings-label">PERFORMANCE</span>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Low Power Mode</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="lowPowerToggle" onchange="toggleLowPowerMode(this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <p class="toggle-desc">Reduces particles and disables animations</p>
+                </div>
+
+                <!-- Privacy -->
+                <div class="settings-section">
+                    <span class="settings-label">PRIVACY</span>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Stealth Mode</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="stealthToggle" onchange="toggleStealthMode(this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <p class="toggle-desc">Hides all visual indicators for clean minimal look</p>
+                </div>
+
                 <!-- Bookmarks -->
                 <div class="settings-section">
                     <span class="settings-label">BOOKMARKS</span>
@@ -128,6 +356,21 @@
             </div>
         </div>
 
+        <!-- Time Widget -->
+        <div class="time-widget" id="time-widget">
+            <div class="time-display" id="time-display">00:00</div>
+            <div class="date-display" id="date-display">Loading...</div>
+        </div>
+
+        <!-- Help Button -->
+        <button class="help-btn" onclick="openShortcuts()" title="Keyboard Shortcuts (Press ?)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+        </button>
+
         <main>
             <div class="brand">
                 <div class="brand-mark">
@@ -137,7 +380,7 @@
                 <p class="brand-sub">SECURE ACCESS</p>
             </div>
 
-            <h1 class="headline">Where to?</h1>
+            <h1 class="headline" id="headline"></h1>
 
             <form id="sj-form" class="search-wrap">
                 <input id="sj-search-engine" value="https://www.google.com/search?q=%s" type="hidden" />
@@ -192,19 +435,24 @@
 
         <script>
         // ════════════════════════════════════════════════════════
-        // PARTICLE BACKGROUND
+        // PARTICLE BACKGROUND with CONSTELLATION LINES
         // ════════════════════════════════════════════════════════
         const canvas = document.getElementById("bg");
         const ctx = canvas.getContext("2d");
         let W, H, dots;
+        let mouse = { x: null, y: null };
+        const CONNECTION_DISTANCE = 100;
+        const MOUSE_CONNECTION_DISTANCE = 150;
 
         function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
         function initDots() {
-            dots = Array.from({ length: 55 }, () => ({
+            const particleCount = window.innerWidth < 768 ? 35 : 55;
+            dots = Array.from({ length: particleCount }, () => ({
                 x: Math.random() * W, y: Math.random() * H,
                 r: Math.random() * 1.4 + 0.3,
                 vx: (Math.random() - 0.5) * 0.25, vy: (Math.random() - 0.5) * 0.25,
                 a: Math.random() * 0.35 + 0.04,
+                pulse: Math.random() * Math.PI * 2,
             }));
         }
 
@@ -213,15 +461,89 @@
             return style.getPropertyValue("--particle-color").trim() || "255,255,255";
         }
 
+        // Mouse tracking for interactive particles
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        });
+
+        window.addEventListener('mouseleave', () => {
+            mouse.x = null;
+            mouse.y = null;
+        });
+
+        // Touch support
+        window.addEventListener('touchmove', (e) => {
+            mouse.x = e.touches[0].clientX;
+            mouse.y = e.touches[0].clientY;
+        });
+
+        function drawConstellationLines(col) {
+            for (let i = 0; i < dots.length; i++) {
+                for (let j = i + 1; j < dots.length; j++) {
+                    const dx = dots[i].x - dots[j].x;
+                    const dy = dots[i].y - dots[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < CONNECTION_DISTANCE) {
+                        const opacity = (1 - dist / CONNECTION_DISTANCE) * 0.15;
+                        ctx.beginPath();
+                        ctx.moveTo(dots[i].x, dots[i].y);
+                        ctx.lineTo(dots[j].x, dots[j].y);
+                        ctx.strokeStyle = `rgba(${col},${opacity})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
+                    }
+                }
+
+                // Mouse interaction lines
+                if (mouse.x !== null && mouse.y !== null) {
+                    const dx = dots[i].x - mouse.x;
+                    const dy = dots[i].y - mouse.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < MOUSE_CONNECTION_DISTANCE) {
+                        const opacity = (1 - dist / MOUSE_CONNECTION_DISTANCE) * 0.3;
+                        ctx.beginPath();
+                        ctx.moveTo(dots[i].x, dots[i].y);
+                        ctx.lineTo(mouse.x, mouse.y);
+                        ctx.strokeStyle = `rgba(${col},${opacity})`;
+                        ctx.lineWidth = 0.8;
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
         function draw() {
             ctx.clearRect(0, 0, W, H);
             const col = getParticleColor();
+
+            // Draw constellation lines first (behind particles)
+            drawConstellationLines(col);
+
+            // Draw particles with pulsing effect
             for (const d of dots) {
                 d.x += d.vx; d.y += d.vy;
                 if (d.x < 0) d.x = W; if (d.x > W) d.x = 0;
                 if (d.y < 0) d.y = H; if (d.y > H) d.y = 0;
-                ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(${col},${d.a})`; ctx.fill();
+
+                // Pulsing animation
+                d.pulse += 0.02;
+                const pulseFactor = 1 + Math.sin(d.pulse) * 0.2;
+
+                ctx.beginPath();
+                ctx.arc(d.x, d.y, d.r * pulseFactor, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(${col},${d.a})`;
+                ctx.fill();
+
+                // Glow effect for larger particles
+                if (d.r > 1.2) {
+                    ctx.beginPath();
+                    ctx.arc(d.x, d.y, d.r * pulseFactor * 3, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(${col},${d.a * 0.1})`;
+                    ctx.fill();
+                }
             }
             requestAnimationFrame(draw);
         }
@@ -278,6 +600,17 @@
             setBg("image", url);
         }
 
+        function clearBgImage() {
+            localStorage.removeItem("darknd_bg_url");
+            document.getElementById("bg-image-url").value = "";
+            setBg("particles");
+            // Update active button
+            document.querySelectorAll(".bg-option").forEach(btn => {
+                btn.classList.remove("active");
+                if (btn.dataset.bg === "particles") btn.classList.add("active");
+            });
+        }
+
         // Init background
         (function() {
             const savedBg = localStorage.getItem("darknd_bg") || "particles";
@@ -304,6 +637,143 @@
                 }
             }
         })();
+
+        // ════════════════════════════════════════════════════════
+        // KEYBOARD SHORTCUTS MODAL
+        // ════════════════════════════════════════════════════════
+        function openShortcuts() {
+            document.getElementById("shortcuts-modal").classList.add("open");
+        }
+
+        function closeShortcuts() {
+            document.getElementById("shortcuts-modal").classList.remove("open");
+        }
+
+        function handleShortcutsOverlay(e) {
+            if (e.target === document.getElementById("shortcuts-modal")) closeShortcuts();
+        }
+
+        // ════════════════════════════════════════════════════════
+        // GLOBAL KEYBOARD SHORTCUTS
+        // ════════════════════════════════════════════════════════
+        let shortcutsModalOpen = false;
+        let lastKeyTime = 0;
+        const konamiSequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+        let konamiIndex = 0;
+
+        document.addEventListener('keydown', function(e) {
+            const now = Date.now();
+            const target = e.target;
+            const isInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA';
+
+            // Konami code easter egg
+            if (e.key === konamiSequence[konamiIndex]) {
+                konamiIndex++;
+                if (konamiIndex === konamiSequence.length) {
+                    activateEasterEgg();
+                    konamiIndex = 0;
+                }
+            } else {
+                konamiIndex = 0;
+            }
+
+            // ? to open shortcuts (not in inputs)
+            if (e.key === '?' && !isInput) {
+                e.preventDefault();
+                openShortcuts();
+                return;
+            }
+
+            // Escape to close modals
+            if (e.key === 'Escape') {
+                closeShortcuts();
+                closeSettings();
+                hideAC();
+                return;
+            }
+
+            // / to focus search
+            if (e.key === '/' && !isInput) {
+                e.preventDefault();
+                document.getElementById("sj-address").focus();
+                return;
+            }
+
+            // c to open chat
+            if ((e.key === 'c' || e.key === 'C') && !isInput && !e.ctrlKey && !e.metaKey) {
+                e.preventDefault();
+                toggleDrawer();
+                return;
+            }
+
+            // s to open settings
+            if ((e.key === 's' || e.key === 'S') && !isInput && !e.ctrlKey && !e.metaKey) {
+                e.preventDefault();
+                openSettings();
+                return;
+            }
+
+            // Ctrl+K for settings
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                openSettings();
+                return;
+            }
+        });
+
+        // Easter egg - Matrix rain effect
+        function activateEasterEgg() {
+            const canvas = document.createElement('canvas');
+            canvas.id = 'matrix-rain';
+            canvas.style.cssText = 'position:fixed;inset:0;z-index:1000;pointer-events:none;mix-blend-mode:screen;';
+            document.body.appendChild(canvas);
+
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*';
+            const fontSize = 14;
+            const columns = canvas.width / fontSize;
+            const drops = Array(Math.floor(columns)).fill(1);
+
+            function draw() {
+                ctx.fillStyle = 'rgba(0,0,0,0.05)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#00ff88';
+                ctx.font = fontSize + 'px monospace';
+
+                for (let i = 0; i < drops.length; i++) {
+                    const text = chars[Math.floor(Math.random() * chars.length)];
+                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    drops[i]++;
+                }
+            }
+
+            const interval = setInterval(draw, 33);
+
+            // Show toast
+            const toast = document.createElement('div');
+            toast.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:rgba(0,255,136,0.15);border:1px solid #00ff88;color:#00ff88;padding:1rem 2rem;border-radius:10px;font-family:DM Mono,monospace;font-size:0.8rem;z-index:1001;backdrop-filter:blur(10px);';
+            toast.textContent = '&#127881; MATRIX MODE ACTIVATED &#127881;';
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                clearInterval(interval);
+                canvas.remove();
+                toast.remove();
+            }, 5000);
+        }
+
+        // Close shortcuts on any key press when open
+        document.getElementById('shortcuts-modal').addEventListener('keydown', function(e) {
+            if (this.classList.contains('open')) {
+                closeShortcuts();
+            }
+        });
 
         // ════════════════════════════════════════════════════════
         // SETTINGS MODAL
@@ -463,6 +933,9 @@
             document.getElementById("chat-bubble").style.display = "none";
             document.getElementById("chat-drawer").style.display = "none";
             document.getElementById("settings-modal").style.display = "none";
+            document.getElementById("time-widget").style.display = "none";
+            document.getElementById("shortcuts-modal").classList.remove("open");
+            document.querySelector(".help-btn").style.display = "none";
         });
 
         // ════════════════════════════════════════════════════════
@@ -630,6 +1103,300 @@
 
         loadChatMessages();
         setInterval(loadChatMessages, 2500);
+
+        // ════════════════════════════════════════════════════════
+        // TYPING ANIMATION FOR HEADLINE
+        // ════════════════════════════════════════════════════════
+        const phrases = ["Where to?", "Explore...", "Go anywhere", "Your web."];
+        let phraseIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        let typingDelay = 100;
+        const headlineEl = document.getElementById('headline');
+
+        function typeEffect() {
+            const currentPhrase = phrases[phraseIndex];
+
+            if (isDeleting) {
+                headlineEl.textContent = currentPhrase.substring(0, charIndex - 1);
+                charIndex--;
+                typingDelay = 50;
+            } else {
+                headlineEl.textContent = currentPhrase.substring(0, charIndex + 1);
+                charIndex++;
+                typingDelay = 100;
+            }
+
+            if (!isDeleting && charIndex === currentPhrase.length) {
+                typingDelay = 4000; // Pause at end (4 seconds)
+                isDeleting = true;
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                phraseIndex = (phraseIndex + 1) % phrases.length;
+                typingDelay = 800; // Pause before typing next
+            }
+
+            setTimeout(typeEffect, typingDelay);
+        }
+
+        // Add blinking cursor via CSS class
+        headlineEl.classList.add('typing-cursor');
+        typeEffect();
+
+        // ════════════════════════════════════════════════════════
+        // FOCUS MODE - dims background when typing
+        // ════════════════════════════════════════════════════════
+        const searchInput = document.getElementById('sj-address');
+        let focusTimeout;
+
+        searchInput.addEventListener('focus', () => {
+            document.body.classList.add('focus-mode');
+        });
+
+        searchInput.addEventListener('blur', () => {
+            focusTimeout = setTimeout(() => {
+                document.body.classList.remove('focus-mode');
+            }, 100);
+        });
+
+        // Prevent focus mode from being removed when clicking autocomplete
+        document.getElementById('autocomplete-list').addEventListener('mousedown', (e) => {
+            clearTimeout(focusTimeout);
+            e.preventDefault();
+            searchInput.focus();
+        });
+
+        // ════════════════════════════════════════════════════════
+        // CLICK PARTICLE BURST
+        // ════════════════════════════════════════════════════════
+        document.addEventListener('click', function(e) {
+            // Don't trigger on interactive elements
+            if (e.target.closest('button, input, a, .chat-msg-wrap')) return;
+
+            createParticleBurst(e.clientX, e.clientY);
+        });
+
+        function createParticleBurst(x, y) {
+            const colors = ['#7c5af0', '#ffffff', '#00ff88', '#bd93f9', '#88c0d0'];
+            const particleCount = 8;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.style.cssText = `
+                    position: fixed;
+                    left: ${x}px;
+                    top: ${y}px;
+                    width: 6px;
+                    height: 6px;
+                    background: ${colors[Math.floor(Math.random() * colors.length)]};
+                    border-radius: 50%;
+                    pointer-events: none;
+                    z-index: 9999;
+                    box-shadow: 0 0 6px currentColor;
+                `;
+                document.body.appendChild(particle);
+
+                const angle = (Math.PI * 2 * i) / particleCount;
+                const velocity = 50 + Math.random() * 50;
+                const tx = Math.cos(angle) * velocity;
+                const ty = Math.sin(angle) * velocity;
+
+                particle.animate([
+                    { transform: 'translate(0,0) scale(1)', opacity: 1 },
+                    { transform: `translate(${tx}px, ${ty}px) scale(0)`, opacity: 0 }
+                ], {
+                    duration: 600,
+                    easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+                }).onfinish = () => particle.remove();
+            }
+        }
+
+        // ════════════════════════════════════════════════════════
+        // PARALLAX TILT EFFECT for main content
+        // ════════════════════════════════════════════════════════
+        const mainEl = document.querySelector('main');
+        let tiltTimeout;
+
+        document.addEventListener('mousemove', function(e) {
+            if (window.innerWidth < 768) return; // Disable on mobile
+
+            clearTimeout(tiltTimeout);
+
+            const x = (e.clientX / window.innerWidth - 0.5) * 2;
+            const y = (e.clientY / window.innerHeight - 0.5) * 2;
+
+            mainEl.style.transform = `perspective(1000px) rotateY(${x * 2}deg) rotateX(${-y * 2}deg)`;
+
+            tiltTimeout = setTimeout(() => {
+                mainEl.style.transform = 'perspective(1000px) rotateY(0deg) rotateX(0deg)';
+            }, 100);
+        });
+
+        mainEl.style.transition = 'transform 0.1s ease-out';
+
+        // ════════════════════════════════════════════════════════
+        // TIME WIDGET
+        // ════════════════════════════════════════════════════════
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+            const dateStr = now.toLocaleDateString('en-US', {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric'
+            });
+            document.getElementById('time-display').textContent = timeStr;
+            document.getElementById('date-display').textContent = dateStr;
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // Add typing cursor styles
+        const cursorStyle = document.createElement('style');
+        cursorStyle.textContent = `
+            .typing-cursor::after {
+                content: '|';
+                animation: typing-blink 1s step-end infinite;
+                margin-left: 2px;
+            }
+            @keyframes typing-blink {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0; }
+            }
+        `;
+        document.head.appendChild(cursorStyle);
+
+        // ════════════════════════════════════════════════════════
+        // AUTO-LOGOUT ON SESSION EXPIRE
+        // ════════════════════════════════════════════════════════
+        async function checkSession() {
+            try {
+                const res = await fetch('/api/session/check', {
+                    method: 'GET',
+                    credentials: 'same-origin',
+                    cache: 'no-store'
+                });
+                const data = await res.json();
+
+                if (!data.valid) {
+                    // Session expired - redirect to login
+                    window.location.href = '/login?expired=1';
+                }
+            } catch (e) {
+                // Network error - try again later
+            }
+        }
+
+        // Check session every 30 seconds
+        setInterval(checkSession, 30000);
+
+        // Also check when tab becomes visible again
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                checkSession();
+            }
+        });
+
+        // Check on page load
+        checkSession();
+
+        // ════════════════════════════════════════════════════════
+        // QUICK LINKS
+        // ════════════════════════════════════════════════════════
+        function addQuickLink() {
+            const list = document.getElementById('quick-links-list');
+            const item = document.createElement('div');
+            item.className = 'quick-link-item';
+            item.innerHTML = `
+                <input type="text" class="quick-link-name" placeholder="Name" onchange="saveQuickLinks()">
+                <input type="text" class="quick-link-url" placeholder="URL" onchange="saveQuickLinks()">
+                <button class="quick-link-remove" onclick="this.parentElement.remove(); saveQuickLinks();">×</button>
+            `;
+            list.appendChild(item);
+        }
+
+        function saveQuickLinks() {
+            const links = [];
+            document.querySelectorAll('.quick-link-item').forEach(item => {
+                const name = item.querySelector('.quick-link-name').value.trim();
+                const url = item.querySelector('.quick-link-url').value.trim();
+                if (name && url) {
+                    links.push({ name, url });
+                }
+            });
+            localStorage.setItem('darknd_quicklinks', JSON.stringify(links));
+        }
+
+        function loadQuickLinks() {
+            const saved = localStorage.getItem('darknd_quicklinks');
+            if (saved) {
+                const links = JSON.parse(saved);
+                const list = document.getElementById('quick-links-list');
+                list.innerHTML = '';
+                links.forEach(link => {
+                    const item = document.createElement('div');
+                    item.className = 'quick-link-item';
+                    item.innerHTML = `
+                        <input type="text" class="quick-link-name" placeholder="Name" value="${escapeHtml(link.name)}" onchange="saveQuickLinks()">
+                        <input type="text" class="quick-link-url" placeholder="URL" value="${escapeHtml(link.url)}" onchange="saveQuickLinks()">
+                        <button class="quick-link-remove" onclick="this.parentElement.remove(); saveQuickLinks();">×</button>
+                    `;
+                    list.appendChild(item);
+                });
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ════════════════════════════════════════════════════════
+        // STEALTH MODE
+        // ════════════════════════════════════════════════════════
+        function toggleStealthMode(enabled) {
+            if (enabled) {
+                document.body.classList.add('stealth-mode');
+            } else {
+                document.body.classList.remove('stealth-mode');
+            }
+            localStorage.setItem('darknd_stealth', enabled);
+        }
+
+        // ════════════════════════════════════════════════════════
+        // LOW POWER MODE
+        // ════════════════════════════════════════════════════════
+        function toggleLowPowerMode(enabled) {
+            if (enabled) {
+                document.body.classList.add('low-power-mode');
+            } else {
+                document.body.classList.remove('low-power-mode');
+            }
+            localStorage.setItem('darknd_lowpower', enabled);
+        }
+
+        // ════════════════════════════════════════════════════════
+        // LOAD SAVED SETTINGS
+        // ════════════════════════════════════════════════════════
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load quick links
+            loadQuickLinks();
+
+            // Load stealth mode
+            const stealthEnabled = localStorage.getItem('darknd_stealth') === 'true';
+            document.getElementById('stealthToggle').checked = stealthEnabled;
+            if (stealthEnabled) document.body.classList.add('stealth-mode');
+
+            // Load low power mode
+            const lowPowerEnabled = localStorage.getItem('darknd_lowpower') === 'true';
+            document.getElementById('lowPowerToggle').checked = lowPowerEnabled;
+            if (lowPowerEnabled) document.body.classList.add('low-power-mode');
+        });
         </script>
     </body>
 </html>
