@@ -207,6 +207,11 @@ const fastify = Fastify({
 			.on("request", (req, res) => {
 				res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
 				res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
+				if (req.url === "/sw.js" || req.url === "/register-sw.js" || req.url === "/config.js") {
+					res.setHeader("Cache-Control", "no-store");
+				} else if (req.url.startsWith("/scram/") || req.url.startsWith("/libcurl/") || req.url.startsWith("/baremux/")) {
+					res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+				}
 				handler(req, res);
 			})
 			.on("upgrade", (req, socket, head) => {
@@ -278,7 +283,7 @@ fastify.post("/login", async (req, reply) => {
 		totalLogins++;
 		return reply
 			.code(302)
-			.header("Set-Cookie", `sj_session=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${SESSION_MAX_AGE_MS / 1000}`)
+			.header("Set-Cookie", `sj_session=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${SESSION_MAX_AGE_MS / 1000}`)
 			.header("Location", "/").send();
 	}
 	return reply.code(302).header("Location", "/login?error=1").send();
@@ -289,7 +294,7 @@ fastify.post("/logout", async (req, reply) => {
 	if (token) sessions.delete(token);
 	return reply
 		.code(302)
-		.header("Set-Cookie", "sj_session=; Path=/; HttpOnly; Max-Age=0")
+		.header("Set-Cookie", "sj_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0")
 		.header("Location", "/login").send();
 });
 
@@ -307,7 +312,7 @@ fastify.post("/admin/login", async (req, reply) => {
 		sessions.set(token, { createdAt: Date.now(), isAdmin: true, password: password.trim() });
 		return reply
 			.code(302)
-			.header("Set-Cookie", `sj_session=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${SESSION_MAX_AGE_MS / 1000}`)
+			.header("Set-Cookie", `sj_session=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${SESSION_MAX_AGE_MS / 1000}`)
 			.header("Location", "/admin").send();
 	}
 	return reply.code(302).header("Location", "/admin/login?error=1").send();
@@ -318,7 +323,7 @@ fastify.post("/admin/logout", async (req, reply) => {
 	if (token) sessions.delete(token);
 	return reply
 		.code(302)
-		.header("Set-Cookie", "sj_session=; Path=/; HttpOnly; Max-Age=0")
+		.header("Set-Cookie", "sj_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0")
 		.header("Location", "/admin/login").send();
 });
 
