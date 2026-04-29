@@ -1270,21 +1270,6 @@
         `;
         document.head.appendChild(cursorStyle);
 
-        const logoutForm = document.querySelector('form[action="/logout"]');
-        if (logoutForm) {
-            logoutForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                try {
-                    if (navigator.serviceWorker) {
-                        const registrations = await navigator.serviceWorker.getRegistrations();
-                        await Promise.all(registrations.map(registration => registration.unregister()));
-                    }
-                } catch (err) {
-                }
-                logoutForm.submit();
-            });
-        }
-
         // ════════════════════════════════════════════════════════
         // AUTO-LOGOUT ON SESSION EXPIRE
         // ════════════════════════════════════════════════════════

@@ -18,8 +18,8 @@ importers:
         specifier: ^1.5.2
         version: 1.5.2
       '@mercuryworkshop/scramjet':
-        specifier: https://github.com/MercuryWorkshop/scramjet/releases/download/latest/mercuryworkshop-scramjet-2.0.0-alpha.tgz
-        version: https://github.com/MercuryWorkshop/scramjet/releases/download/latest/mercuryworkshop-scramjet-2.0.0-alpha.tgz
+        specifier: file:./vendor/scramjet-2.0.0-alpha-pinned.tgz
+        version: file:vendor/scramjet-2.0.0-alpha-pinned.tgz
       '@mercuryworkshop/wisp-js':
         specifier: ^0.4.1
         version: 0.4.1(utf-8-validate@6.0.4)
@@ -126,8 +126,8 @@ packages:
   '@mercuryworkshop/libcurl-transport@1.5.2':
     resolution: {integrity: sha512-E0tD/3W6HE99ypc7CStpchU6xs+TP5u2vms/9q/46BShblB2pbRCNeXHBlvXqdz97nh2Xh4A68DryDt5CM29Dg==}
 
-  '@mercuryworkshop/scramjet@https://github.com/MercuryWorkshop/scramjet/releases/download/latest/mercuryworkshop-scramjet-2.0.0-alpha.tgz':
-    resolution: {tarball: https://github.com/MercuryWorkshop/scramjet/releases/download/latest/mercuryworkshop-scramjet-2.0.0-alpha.tgz}
+  '@mercuryworkshop/scramjet@file:vendor/scramjet-2.0.0-alpha-pinned.tgz':
+    resolution: {integrity: sha512-Vv+VQoKZ0bMnzJXf4OsYjyFsJykSaKBjXiaHudiql1AtPsCnhwf6+jN76RUVpNZv8QtY6+P0CZya8ydCaBSu5g==, tarball: file:vendor/scramjet-2.0.0-alpha-pinned.tgz}
     version: 2.0.0-alpha
 
   '@mercuryworkshop/wisp-js@0.4.1':
@@ -827,7 +827,7 @@ snapshots:
     dependencies:
       libcurl.js: 0.7.4
 
-  '@mercuryworkshop/scramjet@https://github.com/MercuryWorkshop/scramjet/releases/download/latest/mercuryworkshop-scramjet-2.0.0-alpha.tgz':
+  '@mercuryworkshop/scramjet@file:vendor/scramjet-2.0.0-alpha-pinned.tgz':
     dependencies:
       '@mercuryworkshop/bare-mux': 2.1.7
       dom-serializer: 2.0.0
