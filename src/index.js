@@ -205,6 +205,11 @@ const fastify = Fastify({
 	serverFactory: (handler) => {
 		return createServer()
 			.on("request", (req, res) => {
+				if (req.url === "/sw.js" || req.url === "/register-sw.js" || req.url === "/config.js") {
+					res.setHeader("Cache-Control", "no-store");
+				} else if (req.url.startsWith("/scram/") || req.url.startsWith("/libcurl/") || req.url.startsWith("/baremux/")) {
+					res.setHeader("Cache-Control", "no-cache");
+				}
 				res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
 				res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
 				handler(req, res);
