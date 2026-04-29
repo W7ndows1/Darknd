@@ -18,8 +18,8 @@ importers:
         specifier: ^1.5.2
         version: 1.5.2
       '@mercuryworkshop/scramjet':
-        specifier: file:./vendor/scramjet-2.0.0-alpha-pinned.tgz
-        version: file:vendor/scramjet-2.0.0-alpha-pinned.tgz
+        specifier: ^1.1.0
+        version: 1.1.0
       '@mercuryworkshop/wisp-js':
         specifier: ^0.4.1
         version: 0.4.1(utf-8-validate@6.0.4)
@@ -123,12 +123,14 @@ packages:
   '@mercuryworkshop/bare-mux@2.1.7':
     resolution: {integrity: sha512-BUamyc7jsIFbWQVVWjVjaD+Wot77EPwolkrbP3UuIs6QeHR1RY52+IR2fq3GkRAbOOrAZNT7EgZSsupkh1NowQ==}
 
+  '@mercuryworkshop/bare-mux@2.1.9':
+    resolution: {integrity: sha512-fiOqWm3VP0Bl8T+0l+qnb7ab9zO+PpKVbtJvOnMsefUv6kWIaoDtqyr9hd/t4gA8oBwgtyZVqIwO2J9nKY9ylw==}
+
   '@mercuryworkshop/libcurl-transport@1.5.2':
     resolution: {integrity: sha512-E0tD/3W6HE99ypc7CStpchU6xs+TP5u2vms/9q/46BShblB2pbRCNeXHBlvXqdz97nh2Xh4A68DryDt5CM29Dg==}
 
-  '@mercuryworkshop/scramjet@file:vendor/scramjet-2.0.0-alpha-pinned.tgz':
-    resolution: {integrity: sha512-Vv+VQoKZ0bMnzJXf4OsYjyFsJykSaKBjXiaHudiql1AtPsCnhwf6+jN76RUVpNZv8QtY6+P0CZya8ydCaBSu5g==, tarball: file:vendor/scramjet-2.0.0-alpha-pinned.tgz}
-    version: 2.0.0-alpha
+  '@mercuryworkshop/scramjet@1.1.0':
+    resolution: {integrity: sha512-T/9GZqAQX42eYr/t6VGR2m9J4BtIuncRkANo8hBVTGskrr522yuhaADhSu+65DYlhUyQnLUjDikuNYzlgv0Ejw==}
 
   '@mercuryworkshop/wisp-js@0.4.1':
     resolution: {integrity: sha512-104LwiXiuhti/e32gmv0Da0u0yuLFDHX8JawCzleTPWJ5t5qTX4EYi4E7/ucbjBPN9wwVPWHE5g5yGqzl/NzQA==}
@@ -823,13 +825,15 @@ snapshots:
 
   '@mercuryworkshop/bare-mux@2.1.7': {}
 
+  '@mercuryworkshop/bare-mux@2.1.9': {}
+
   '@mercuryworkshop/libcurl-transport@1.5.2':
     dependencies:
       libcurl.js: 0.7.4
 
-  '@mercuryworkshop/scramjet@file:vendor/scramjet-2.0.0-alpha-pinned.tgz':
+  '@mercuryworkshop/scramjet@1.1.0':
     dependencies:
-      '@mercuryworkshop/bare-mux': 2.1.7
+      '@mercuryworkshop/bare-mux': 2.1.9
       dom-serializer: 2.0.0
       domhandler: 5.0.3
       domutils: 3.2.2

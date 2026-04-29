@@ -209,6 +209,9 @@ const fastify = Fastify({
 					res.setHeader("Cache-Control", "no-store");
 				} else if (req.url.startsWith("/scram/") || req.url.startsWith("/libcurl/") || req.url.startsWith("/baremux/")) {
 					res.setHeader("Cache-Control", "no-cache");
+					if (req.url.endsWith(".wasm") || req.url.endsWith(".wasm.wasm")) {
+						res.setHeader("Content-Type", "application/wasm");
+					}
 				}
 				res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
 				res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
@@ -587,7 +590,16 @@ fastify.post("/admin/api/chat/clear", async (req, reply) => {
 
 // ── Static File Routes ────────────────────────────────────────────────────────
 fastify.register(fastifyStatic, { root: publicPath, decorateReply: true });
-fastify.register(fastifyStatic, { root: scramjetPath, prefix: "/scram/", decorateReply: false });
+fastify.register(fastifyStatic, {
+	root: scramjetPath,
+	prefix: "/scram/",
+	decorateReply: false,
+	setHeaders: (res, path) => {
+		if (path.endsWith('.wasm')) {
+			res.setHeader('Content-Type', 'application/wasm');
+		}
+	}
+});
 fastify.register(fastifyStatic, { root: libcurlPath, prefix: "/libcurl/", decorateReply: false });
 fastify.register(fastifyStatic, { root: baremuxPath, prefix: "/baremux/", decorateReply: false });
 

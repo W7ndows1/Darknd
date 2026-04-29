@@ -1,8 +1,8 @@
 {
   "domains": {
-    "www.google.com": 3,
-    "play.geforcenow.com": 35,
-    "duckduckgo.com": 1,
+    "www.google.com": 4,
+    "play.geforcenow.com": 46,
+    "duckduckgo.com": 2,
     "github.com": 1
   },
   "hourly": {
@@ -11,6 +11,8 @@
     "2026-04-28T02": 7,
     "2026-04-28T03": 10,
     "2026-04-29T01": 5,
-    "2026-04-29T02": 14
+    "2026-04-29T02": 15,
+    "2026-04-29T03": 2,
+    "2026-04-29T23": 10
   }
 }

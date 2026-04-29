@@ -1,4 +1,4 @@
-// sw-version: 2026-04-28-libcurl-revert
+// sw-version: 2026-04-29-1.1.0
 importScripts("/scram/scramjet.all.js");
 
 self.addEventListener("install", () => self.skipWaiting());
