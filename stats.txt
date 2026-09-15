@@ -1,0 +1,11 @@
+{
+  "domains": {
+    "www.google.com": 5,
+    "play.geforcenow.com": 46,
+    "duckduckgo.com": 2,
+    "github.com": 1
+  },
+  "hourly": {
+    "2026-05-16T03": 1
+  }
+}
